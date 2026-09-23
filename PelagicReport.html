@@ -616,6 +616,9 @@ function handleFile(file){
 const sheetUrlInput = document.getElementById('sheetUrl');
 const loadUrlBtn = document.getElementById('loadUrlBtn');
 
+const sheetUrlInput = document.getElementById('sheetUrl');
+const loadUrlBtn = document.getElementById('loadUrlBtn');
+
 loadUrlBtn.addEventListener('click', () => {
   let url = sheetUrlInput.value.trim();
   if (!url) { showError("Paste a Google Sheet link first."); return; }
@@ -633,12 +636,11 @@ loadUrlBtn.addEventListener('click', () => {
   const sheetId = idMatch[1];
   const gid = gidMatch ? gidMatch[1] : "0";
   const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
-  const proxiedUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(gvizUrl);
 
   filenameEl.textContent = "Fetching sheet…";
   loadUrlBtn.disabled = true;
 
-  fetch(proxiedUrl)
+  fetch(gvizUrl)
     .then(resp => {
       if (!resp.ok) throw new Error("Server returned " + resp.status + " — make sure the sheet is shared as 'Anyone with the link can view'.");
       return resp.text();
