@@ -616,9 +616,6 @@ function handleFile(file){
 const sheetUrlInput = document.getElementById('sheetUrl');
 const loadUrlBtn = document.getElementById('loadUrlBtn');
 
-const sheetUrlInput = document.getElementById('sheetUrl');
-const loadUrlBtn = document.getElementById('loadUrlBtn');
-
 loadUrlBtn.addEventListener('click', () => {
   let url = sheetUrlInput.value.trim();
   if (!url) { showError("Paste a Google Sheet link first."); return; }
