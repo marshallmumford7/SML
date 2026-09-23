@@ -1,0 +1,1346 @@
+
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+
+:root{
+  --oceanblue: #1B4F72;
+  --ocean-deep:#0F3A57;
+  --lightblue: #D6EAF8;
+  --medblue:   #85C1E9;
+  --seafoam:   #E8F6F3;
+  --teal:      #148F77;
+  --steel:     #5D8AA8;
+  --gray:      #717D7E;
+  --text:      #12242E;
+  --subtext:   #4E7A93;
+  --border:    #C9DCE5;
+  --paper:     #FBFCFC;
+  --radius:    7px;
+  --font-family: "Source Sans 3", sans-serif;
+  --heading-font: "Fraunces", serif;
+  --mono:      "Source Sans 3", sans-serif;
+  --danger:    #943126;
+  --danger-bg: rgba(148,49,38,0.08);
+}
+
+body,html{
+  font-family:var(--font-family);font-size:14px;
+  color:var(--text);
+  background:var(--paper);
+  min-height:100vh;
+}
+
+/* ── Layout ── */
+.form-wrap{
+  max-width:900px;margin:0 auto;
+  padding:2.5rem 2rem 5rem;
+}
+
+/* ── Page header ── */
+.page-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:2rem;
+  background:linear-gradient(160deg, var(--ocean-deep) 0%, var(--oceanblue) 55%, var(--steel) 100%);
+  border-radius:10px;
+  padding:1.75rem 2rem;
+  box-shadow:0 4px 14px rgba(15,58,87,0.2);
+}
+.page-header h1{
+  font-family:var(--heading-font);
+  font-size:22px;font-weight:600;
+  color:#fff;letter-spacing:0;margin-bottom:4px;
+}
+.page-header h1 span{color:#fff;font-weight:600}
+.page-header p{font-size:12px;color:#DCEBF5;letter-spacing:0.05em;text-transform:uppercase}
+.header-badge{
+  font-family:var(--mono);font-size:12px;
+  font-weight:600;
+  color:var(--oceanblue);
+  letter-spacing:0.02em;
+  background:#fff;
+  padding:6px 14px;border-radius:99px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  white-space:nowrap;
+}
+
+/* ── Sections — report style ── */
+.section{
+  margin-bottom:1.5rem;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:1.75rem 1.75rem;
+  box-shadow:0 1px 2px rgba(15,58,87,0.06);
+}
+.section-header{
+  display:flex;align-items:baseline;gap:10px;
+  margin-bottom:1.1rem;
+  padding-bottom:0.6rem;
+  border-bottom:2px solid var(--oceanblue);
+}
+.section-icon{display:none} /* hide icon boxes; use heading style instead */
+.section-title{
+  font-family:var(--heading-font);
+  font-size:19px;font-weight:600;
+  color:var(--oceanblue);
+  text-transform:none;letter-spacing:0;
+}
+
+/* ── Queue section keeps card styling consistent with the rest ── */
+.queue-section{background:#fff}
+
+/* ── Grid ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid-time-loc{display:grid;grid-template-columns:120px 120px 1fr;gap:14px}
+
+/* ── Fields ── */
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{
+  font-size:11px;font-weight:600;
+  color:var(--subtext);letter-spacing:0.05em;text-transform:uppercase;
+}
+.field input,.field select,.field textarea{
+  font-size:13px;padding:7px 10px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:#fff;
+  color:var(--text);
+  width:100%;
+  font-family:var(--font-family);
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.field input::placeholder,.field textarea::placeholder{color:#9FB7C9}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;
+  border-color:var(--oceanblue);
+  box-shadow:0 0 0 3px rgba(133,193,233,0.35);
+}
+.field input:disabled{opacity:0.4;cursor:not-allowed}
+.field textarea{resize:vertical;min-height:72px;line-height:1.5}
+.field select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%231b4f72' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;
+  cursor:pointer;
+}
+.field select option{background:#fff;color:var(--text)}
+
+/* ── Cruise ID preview ── */
+.cruise-preview{
+  font-family:var(--mono);font-size:13px;font-weight:600;
+  color:var(--oceanblue);
+  padding:7px 10px;
+  background:var(--seafoam);
+  border:1px solid var(--oceanblue);
+  border-radius:6px;
+  min-height:34px;display:flex;align-items:center;letter-spacing:0.03em;
+}
+
+.option-row{display:flex;align-items:center;gap:7px;margin-top:5px}
+.option-row label{
+  font-size:12px;color:var(--subtext);
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+  text-transform:none;letter-spacing:0;
+}
+.option-row input[type="checkbox"]{
+  accent-color:var(--oceanblue);width:13px;height:13px;cursor:pointer;
+}
+.suffix-input{
+  width:64px;font-size:12px;padding:4px 8px;
+  border:1px solid var(--border);border-radius:6px;
+  background:#fff;color:var(--text);font-family:var(--mono);
+}
+.option-row span{font-size:12px;color:var(--subtext)}
+
+/* ── Divider ── */
+.divider{height:1px;background:var(--border);margin:14px 0}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 15px;border-radius:var(--radius);font-size:13.5px;font-weight:600;
+  cursor:pointer;border:1px solid var(--border);
+  background:#fff;color:var(--text);
+  font-family:var(--font-family);transition:all 0.15s;
+}
+.btn:hover{background:var(--seafoam);border-color:var(--medblue)}
+.btn i{font-size:14px}
+
+.btn-primary{
+  background:var(--oceanblue);border-color:var(--oceanblue);
+  color:#fff;font-weight:600;
+}
+.btn-primary:hover{background:var(--ocean-deep);border-color:var(--ocean-deep)}
+
+.btn-ghost{
+  background:transparent;border-color:transparent;
+  color:var(--subtext);padding:6px 10px;
+}
+.btn-ghost:hover{background:rgba(27,79,114,0.07);border-color:var(--border);color:var(--text)}
+
+.btn-danger-sm{
+  background:transparent;border-color:transparent;
+  color:rgba(148,49,38,0.55);padding:5px 7px;font-size:12px;border-radius:6px;
+}
+.btn-danger-sm:hover{background:var(--danger-bg);color:var(--danger)}
+.btn-danger-sm i{font-size:14px}
+
+.row-x-btn{
+  flex-shrink:0;width:22px;height:22px;line-height:1;
+  border:1px solid transparent;border-radius:5px;
+  background:transparent;color:rgba(148,49,38,0.55);
+  font-size:15px;font-family:var(--font-family);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.12s,color 0.12s,border-color 0.12s;
+}
+.row-x-btn:hover{background:var(--danger-bg);color:var(--danger);border-color:var(--border)}
+
+/* ── GPS row ── */
+.gps-row{display:flex;gap:8px;margin-top:8px}
+
+/* ── GPS box ── */
+.gps-box{
+  border:1px solid var(--border);border-radius:8px;
+  background:var(--paper);padding:1rem 1.25rem;margin-top:4px;
+}
+.gps-box-title{
+  font-size:11px;font-weight:600;color:var(--subtext);
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:12px;
+}
+
+/* ── Species table ── */
+.catch-wrap{overflow-x:auto;overflow-y:visible}
+.species-table{
+  width:100%;border-collapse:collapse;font-size:12.5px;
+  table-layout:fixed;min-width:620px;
+}
+.species-table th{
+  text-align:left;padding:9px 10px;
+  color:#fff;font-size:12px;font-weight:600;
+  text-transform:none;letter-spacing:0;
+  background:var(--oceanblue);
+  border:none;
+}
+.species-table th:first-child{border-radius:0}
+.species-table th:last-child{border-radius:0}
+/* alternating table rows */
+.species-table tbody tr:nth-child(even) td{background:rgba(214,234,248,0.35)}
+.species-table tbody tr:nth-child(odd) td{background:#fff}
+.species-table td{
+  padding:4px 4px;vertical-align:middle;
+  border-bottom:1px solid var(--border);
+}
+.species-table tr:last-child td{border-bottom:none}
+.species-table tr:hover td{background:var(--seafoam) !important}
+
+.species-table input,.species-table select{
+  font-size:12.5px;padding:6px 8px;
+  border:1px solid transparent;
+  border-radius:5px;
+  background:transparent;
+  color:var(--text);width:100%;
+  font-family:var(--font-family);
+  transition:border-color 0.12s,background 0.12s;
+}
+.species-table input::placeholder{color:#9FB7C9}
+.species-table input:hover,.species-table select:hover{
+  border-color:var(--border);background:#fff;
+}
+.species-table input:focus,.species-table select:focus{
+  outline:none;border-color:var(--oceanblue);
+  background:#fff;box-shadow:0 0 0 2px rgba(133,193,233,0.35);
+}
+.species-table select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%231b4f72' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 6px center;padding-right:20px;
+}
+.species-table select option{background:#fff;color:var(--text)}
+.row-num{
+  color:var(--subtext);font-family:var(--mono);font-size:10px;
+  text-align:center;padding:6px 4px;vertical-align:middle;
+}
+
+/* ── Autocomplete ── */
+.ac-wrap{position:relative}
+.ac-list{
+  position:absolute;top:calc(100% + 3px);left:0;right:0;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:8px;
+  z-index:200;max-height:200px;overflow-y:auto;display:none;
+  box-shadow:0 6px 20px rgba(15,58,87,0.18);
+}
+.ac-item{padding:7px 11px;font-size:12.5px;cursor:pointer;color:var(--text)}
+.ac-item:hover,.ac-item.active{background:var(--lightblue);color:var(--oceanblue)}
+.ac-sub{font-size:11px;color:var(--subtext);display:block;margin-top:1px}
+
+/* ── Actions ── */
+.actions{display:flex;gap:8px;margin-top:1.5rem;flex-wrap:wrap;align-items:center}
+.export-msg{
+  font-size:12px;color:var(--oceanblue);margin-top:8px;display:none;
+  font-family:var(--mono);letter-spacing:0.02em;
+}
+
+/* ── Flash ── */
+.filled-flash{border-color:var(--oceanblue) !important;background:rgba(214,234,248,0.5) !important}
+
+/* ── Queue ── */
+.queue-section{
+  background:#fff;border:1px solid var(--border);
+  border-radius:10px;padding:1.5rem 1.75rem;margin-bottom:1.5rem;
+  box-shadow:0 1px 2px rgba(15,58,87,0.06);
+}
+.queue-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
+.queue-title-row{display:flex;align-items:center;gap:8px}
+.queue-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--oceanblue);color:#fff;
+  font-size:10px;font-weight:600;border-radius:99px;
+  min-width:18px;height:18px;padding:0 5px;font-family:var(--mono);
+}
+.queue-list{display:flex;flex-direction:column;gap:5px}
+.queue-item{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(214,234,248,0.35);border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;transition:border-color 0.15s;
+}
+.queue-item:hover{border-color:var(--oceanblue)}
+.queue-item-left{display:flex;align-items:center;gap:12px}
+.queue-item-id{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--oceanblue)}
+.queue-item-meta{font-size:12px;color:var(--gray)}
+.queue-item-rows{font-size:12px;color:var(--gray)}
+.queue-item-actions{display:flex;gap:4px;align-items:center}
+
+.add-next-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 15px;border-radius:var(--radius);font-size:13.5px;font-weight:600;cursor:pointer;
+  border:1px solid var(--oceanblue);
+  background:var(--lightblue);color:var(--oceanblue);
+  font-family:var(--font-family);transition:all 0.15s;
+}
+.add-next-btn:hover{background:var(--medblue);border-color:var(--oceanblue);color:#fff}
+.add-next-btn i{font-size:14px}
+
+/* ── Other vessel input ── */
+#otherVessel{
+  display:none;margin-top:6px;font-size:13px;padding:7px 10px;
+  border:1px solid var(--border);border-radius:6px;
+  background:#fff;color:var(--text);width:100%;
+  font-family:var(--font-family);
+}
+#otherVessel:focus{outline:none;border-color:var(--oceanblue);box-shadow:0 0 0 3px rgba(133,193,233,0.35)}
+</style>
+
+<div class="form-wrap">
+<h2 class="sr-only">SML Collection Data Entry Form</h2>
+
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Shoals Marine Laboratory <span>Collection Form</span></h1>
+    <p>Data Entry</p>
+  </div>
+</div>
+
+<!-- ── Queue panel ── -->
+<div class="queue-section" id="queueSection" style="display:none">
+  <div class="queue-header">
+    <div class="queue-title-row">
+      <i class="ti ti-stack" aria-hidden="true" style="font-size:15px;color:var(--oceanblue)"></i>
+      <span class="section-title">Queued cruises</span>
+      <span class="queue-badge" id="queueBadge">0</span>
+    </div>
+    <button class="btn btn-ghost" onclick="clearQueue()" style="font-size:12px;padding:4px 8px">Clear all</button>
+  </div>
+  <div class="queue-list" id="queueList"></div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon"><i class="ti ti-ship" aria-hidden="true"></i></div>
+    <div class="section-title">Cruise info</div>
+  </div>
+
+  <!-- Row 1: Date · Cruise ID · Trip Type -->
+  <div class="grid-3" style="margin-bottom:14px">
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="date" oninput="updateCruiseID()">
+      <div class="option-row">
+        <label><input type="checkbox" id="todayCheck" onchange="setToday()" checked> Use today's date</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Cruise ID</label>
+      <div class="cruise-preview" id="cruisePreview">—</div>
+      <div class="option-row">
+        <label><input type="checkbox" id="firstOnly" onchange="toggleSuffix()" checked> First collection today</label>
+      </div>
+      <div class="option-row" id="suffixRow" style="display:none">
+        <span>Suffix</span>
+        <input class="suffix-input" type="text" id="suffix" value="-02" oninput="updateCruiseID()" placeholder="-02">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Trip Type</label>
+      <select id="gearType" onchange="handleGearTypeChange()">
+        <option value="">Select…</option>
+        <option>Intertidaling</option>
+        <option>Otter Trawl</option>
+        <option>Angling</option>
+        <option>Hagfishing</option>
+        <option>Beach Seine</option>
+        <option>Dredge</option>
+        <option>Pipe Dredge</option>
+        <option>Gravity Core</option>
+        <option>Sediment Grab</option>
+        <option>Other</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Row 2: Course · Crew · Vessel -->
+  <div class="grid-3" style="margin-bottom:14px">
+    <div class="field"><label>Course / researcher</label><input id="course" placeholder="e.g. MERM"></div>
+    <div class="field"><label>Captain / crew</label><input id="crew" placeholder="e.g. Roger / Kate"></div>
+    <div class="field">
+      <label>Vessel</label>
+      <select id="vessel" onchange="toggleOtherVessel()">
+        <option value="">Select…</option>
+        <option value="JMK">JMK</option>
+        <option value="JBH">JBH</option>
+        <option value="Gulf Challenger">Gulf Challenger</option>
+        <option value="Inflatable">Inflatable</option>
+        <option value="N/A">N/A</option>
+        <option value="Other">Other</option>
+      </select>
+      <input id="otherVessel" placeholder="Enter vessel name">
+    </div>
+  </div>
+
+  <!-- Row 3: Depth · Bottom Type · Sea State -->
+  <div class="grid-3" style="margin-bottom:14px">
+    <div class="field"><label>Depth (ft)</label><input id="depth" type="number" placeholder="24"></div>
+    <div class="field">
+      <label>Bottom type</label>
+      <select id="bottomType">
+        <option value="">Select…</option>
+        <option>Mud</option><option>Sand</option><option>Gravel</option>
+        <option>Rock</option><option>Mixed</option><option>Unknown</option>
+      </select>
+    </div>
+    <div class="field"><label>Sea state (ft)</label><input id="seaState" placeholder="e.g. 1"></div>
+  </div>
+
+  <!-- Row 4: Start Time · End Time · Location -->
+  <div class="grid-time-loc" style="margin-bottom:14px">
+    <div class="field"><label>Start time</label><input id="startTime" type="time"></div>
+    <div class="field"><label>End time</label><input id="endTime" type="time"></div>
+    <div class="field" id="locationField">
+      <label>Location name</label>
+      <input id="location" placeholder="e.g. Appledore Island SE">
+      <select id="locationDropdown" style="display:none" onchange="handleLocationDropdown()">
+        <option value="">Select…</option>
+        <option>Babb's Cove</option>
+        <option>Broad Cove</option>
+        <option>Broadway &amp; 42nd</option>
+        <option>Devil's Dance Floor</option>
+        <option>Devil's Glen</option>
+        <option>Halftide Ledges</option>
+        <option>Larus Ledge</option>
+        <option>North Head</option>
+        <option>Sandpiper Beach</option>
+        <option>Siren's Cove</option>
+        <option>Smith's Cove</option>
+      </select>
+      <input type="number" id="transectNum" min="0" max="28" placeholder="Transect # (0–28)" style="display:none" oninput="handleTransectInput()">
+      <div class="option-row" id="transectToggleRow" style="display:none">
+        <label><input type="checkbox" id="useTransect" onchange="toggleLocationMode()"> Use transect number</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trawl In · Trawl Out · Max Wire Out — Otter Trawl only -->
+  <div class="grid-3" id="trawlSection" style="display:none;margin-bottom:14px">
+    <div class="field"><label>Trawl In</label><input type="time" id="trawlIn"></div>
+    <div class="field"><label>Trawl Out</label><input type="time" id="trawlOut"></div>
+    <div class="field"><label>Max Wire Out (m)</label><input type="number" id="maxWireOut" placeholder="e.g. 120"></div>
+  </div>
+
+  <!-- GPS box -->
+  <div class="gps-box">
+    <div class="gps-box-title">GPS Coordinates</div>
+
+    <!-- Start GPS -->
+    <div class="grid-3" style="margin-bottom:10px">
+      <div class="field"><label>Start lat (DDM)</label><input id="startLat" placeholder="42 58.100"></div>
+      <div class="field"><label>Start long (DDM)</label><input id="startLon" placeholder="70 36.200"></div>
+      <div class="field"></div>
+    </div>
+    <div class="gps-row">
+      <button type="button" class="btn" onclick="fillStartGPS()"><i class="ti ti-crosshair" aria-hidden="true"></i> Set start GPS</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- End GPS -->
+    <div class="grid-3" style="margin-bottom:10px">
+      <div class="field"><label>End lat (DDM)</label><input id="endLat" placeholder="42 58.100"></div>
+      <div class="field"><label>End long (DDM)</label><input id="endLon" placeholder="70 36.200"></div>
+      <div class="field"></div>
+    </div>
+    <div class="gps-row">
+      <button type="button" class="btn" onclick="fillEndGPS()"><i class="ti ti-crosshair" aria-hidden="true"></i> Set end GPS</button>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon"><i class="ti ti-fish" aria-hidden="true"></i></div>
+    <div class="section-title">Catch</div>
+  </div>
+
+  <div class="catch-wrap" style="overflow-y:visible;padding-bottom:200px;margin-bottom:-200px">
+    <table class="species-table">
+      <colgroup>
+        <col style="width:30px">
+        <col style="width:24%">
+        <col style="width:20%">
+        <col style="width:7%">
+        <col style="width:22%">
+        <col style="width:8%">
+        <col style="width:19%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Binomial nomenclature</th>
+          <th>Common name</th>
+          <th>Qty</th>
+          <th>Disposition</th>
+          <th>Length (cm)</th>
+          <th>Comments</th>
+        </tr>
+      </thead>
+      <tbody id="speciesRows"></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:12px">
+    <button class="btn btn-ghost" onclick="addRow()"><i class="ti ti-plus" aria-hidden="true"></i> Add row</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon"><i class="ti ti-notes" aria-hidden="true"></i></div>
+    <div class="section-title">Notes</div>
+  </div>
+  <div class="field"><label>Comments</label><textarea id="comments" placeholder="General cruise notes…"></textarea></div>
+
+  <!-- Tow # -->
+  <div class="grid-3" id="towNumRow" style="margin-top:14px">
+    <div class="field" id="towNumField" style="display:none"><label>Tow #</label><input id="towNum" type="number" placeholder="1"></div>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="add-next-btn" onclick="addNextCruise()"><i class="ti ti-circle-plus" aria-hidden="true"></i> Add next cruise</button>
+  <button class="btn btn-primary" onclick="exportCSV()"><i class="ti ti-download" aria-hidden="true"></i> Export CSV</button>
+  <button class="btn" onclick="clearForm()"><i class="ti ti-refresh" aria-hidden="true"></i> New entry</button>
+</div>
+<div id="exportMsg" class="export-msg"></div>
+</div>
+
+
+<script>
+const SPECIES = [
+  {"BinomialNomenclature": "Pagurus acadianus", "CommonName": "Acadian Hermit Crab"},
+  {"BinomialNomenclature": "Sebastes marinus", "CommonName": "Acadian Red Fish"},
+  {"BinomialNomenclature": "Alosa pseudoharengus", "CommonName": "Alewife"},
+  {"BinomialNomenclature": "Aspidophoroides monopterygius", "CommonName": "Alligatorfish"},
+  {"BinomialNomenclature": "Homarus americanus", "CommonName": "American Lobster"},
+  {"BinomialNomenclature": "Lophius americanus", "CommonName": "American Monkfish"},
+  {"BinomialNomenclature": "Hippoglossoides platessoides", "CommonName": "American Plaice"},
+  {"BinomialNomenclature": "Ammodytes americanus", "CommonName": "American Sand Lance"},
+  {"BinomialNomenclature": "Hemigrapsus sanguineus", "CommonName": "Asian Shore Crab"},
+  {"BinomialNomenclature": "Astarte spp", "CommonName": "Astarte Clam spp"},
+  {"BinomialNomenclature": "Peprilus triacanthus", "CommonName": "Atlantic Butterfish"},
+  {"BinomialNomenclature": "Gadus morhus", "CommonName": "Atlantic Cod"},
+  {"BinomialNomenclature": "Placopecten magellanicus", "CommonName": "Atlantic Deep-sea Scallop"},
+  {"BinomialNomenclature": "Nucella lapillus", "CommonName": "Atlantic Dogwhelk"},
+  {"BinomialNomenclature": "Myxine glutinosa", "CommonName": "Atlantic Hagfish"},
+  {"BinomialNomenclature": "Hippoglossus hippoglossus", "CommonName": "Atlantic Halibut"},
+  {"BinomialNomenclature": "Clupea harengus", "CommonName": "Atlantic Herring"},
+  {"BinomialNomenclature": "Limulus polyphemus", "CommonName": "Atlantic Horseshoe Crab"},
+  {"BinomialNomenclature": "Ensis leei", "CommonName": "Atlantic Jackknife"},
+  {"BinomialNomenclature": "Scomber scombrus", "CommonName": "Atlantic Mackerel"},
+  {"BinomialNomenclature": "Brevoortia tyrannus", "CommonName": "Atlantic Menhaden"},
+  {"BinomialNomenclature": "Selene setapinnis", "CommonName": "Atlantic Moonfish"},
+  {"BinomialNomenclature": "Pollachius virens", "CommonName": "Atlantic Pollock"},
+  {"BinomialNomenclature": "Ensis directus", "CommonName": "Atlantic Razor Clams"},
+  {"BinomialNomenclature": "Menidia menidia", "CommonName": "Atlantic Silverside"},
+  {"BinomialNomenclature": "Liparis atlanticus", "CommonName": "Atlantic Snailfish"},
+  {"BinomialNomenclature": "Microgadus tomcod", "CommonName": "Atlantic Tomcod"},
+  {"BinomialNomenclature": "Anarhichas lupus", "CommonName": "Atlantic Wolffish"},
+  {"BinomialNomenclature": "Idotea balthica", "CommonName": "Baltic Isopod"},
+  {"BinomialNomenclature": "Genus Ceramium", "CommonName": "Banded Weeds"},
+  {"BinomialNomenclature": "Cirripedia spp", "CommonName": "Barnacle spp"},
+  {"BinomialNomenclature": "Onchidoris bilamellata", "CommonName": "Barnacle-eating Dorid"},
+  {"BinomialNomenclature": "Gorgonocephalus arcticus", "CommonName": "Basket Star"},
+  {"BinomialNomenclature": "Scytosiphon lomentaria", "CommonName": "Beanweed"},
+  {"BinomialNomenclature": "Arctica islandica", "CommonName": "Black Clam"},
+  {"BinomialNomenclature": "Centropristis striata", "CommonName": "Black Sea Bass"},
+  {"BinomialNomenclature": "Fucus vesiculosus", "CommonName": "Bladder Wrack"},
+  {"BinomialNomenclature": "Henricia sanguinolenta", "CommonName": "Blood Star"},
+  {"BinomialNomenclature": "Callinectes sapidus", "CommonName": "Blue Crab"},
+  {"BinomialNomenclature": "Mytilus edulis", "CommonName": "Blue Mussel"},
+  {"BinomialNomenclature": "Prionace glauca", "CommonName": "Blue Shark"},
+  {"BinomialNomenclature": "Alosa aestivalis", "CommonName": "Blueback Herring"},
+  {"BinomialNomenclature": "Pomatomus saltatrix", "CommonName": "Bluefish"},
+  {"BinomialNomenclature": "Asterias vulgeris", "CommonName": "Boreal Asterias"},
+  {"BinomialNomenclature": "Petrasma borealis", "CommonName": "Boreal Awningclam"},
+  {"BinomialNomenclature": "Pandalus spp", "CommonName": "Boreal Red Shrimp"},
+  {"BinomialNomenclature": "Pandalus borealis", "CommonName": "Boreal Red Shrimp"},
+  {"BinomialNomenclature": "Illex illecebrosus", "CommonName": "Boreal Squid"},
+  {"BinomialNomenclature": "Halichondria panicea", "CommonName": "Breadcrumb Sponge"},
+  {"BinomialNomenclature": "Ophiopholis aculeata", "CommonName": "Brittle Star"},
+  {"BinomialNomenclature": "Desmarestia spp", "CommonName": "Brown Algae"},
+  {"BinomialNomenclature": "Membranipora spp", "CommonName": "Bryozoan spp"},
+  {"BinomialNomenclature": "Cystoclonium purpureum", "CommonName": "Bushy Red Weed"},
+  {"BinomialNomenclature": "Dendronotus frondosus", "CommonName": "Bushy-backed Nudibranch"},
+  {"BinomialNomenclature": "Didenum vexillum", "CommonName": "Carpet Sea Squirt"},
+  {"BinomialNomenclature": "Botrylloides violaceus", "CommonName": "Chain Tunicate"},
+  {"BinomialNomenclature": "Busycon canaliculatum", "CommonName": "Channeled Whelk"},
+  {"BinomialNomenclature": "Polyplacophora spp", "CommonName": "Chiton spp"},
+  {"BinomialNomenclature": "Chordaria flagelliformis", "CommonName": "Chordaria flagelliformis"},
+  {"BinomialNomenclature": "Raja eglanteria", "CommonName": "Clearnose Skate"},
+  {"BinomialNomenclature": "Spirorbis spp", "CommonName": "Coiled worm"},
+  {"BinomialNomenclature": "Bugula spp", "CommonName": "Colonial Arborescent Bryozoa spp"},
+  {"BinomialNomenclature": "Corallina officinalis", "CommonName": "Common Coralline"},
+  {"BinomialNomenclature": "Crassostrea virginica", "CommonName": "Common Oyster"},
+  {"BinomialNomenclature": "Littorina littorea", "CommonName": "Common Periwinkle"},
+  {"BinomialNomenclature": "Hyas coarcticus", "CommonName": "Contracted Crab"},
+  {"BinomialNomenclature": "Cancer spp", "CommonName": "Crab spp"},
+  {"BinomialNomenclature": "Ophiopholis aculeata", "CommonName": "Crevice Brittle Star"},
+  {"BinomialNomenclature": "Doto coronata", "CommonName": "Crowned Seaslug"},
+  {"BinomialNomenclature": "Lithothamnium spp", "CommonName": "Crustose Algae"},
+  {"BinomialNomenclature": "Tautogolabrus adspersus", "CommonName": "Cunner"},
+  {"BinomialNomenclature": "Brosme brosme", "CommonName": "Cusk"},
+  {"BinomialNomenclature": "Lumpenus maculatus", "CommonName": "Daubed Shanny"},
+  {"BinomialNomenclature": "Codium fragile", "CommonName": "Dead man's fingers"},
+  {"BinomialNomenclature": "Crepidula plana", "CommonName": "Eastern White Slippersnail"},
+  {"BinomialNomenclature": "Neohelix albolabris", "CommonName": "Eastern Whitelip"},
+  {"BinomialNomenclature": "Zostera marina", "CommonName": "Eelgrass"},
+  {"BinomialNomenclature": "Lycodes turneri", "CommonName": "Eelpout"},
+  {"BinomialNomenclature": "Ostrea edulis", "CommonName": "European Flat Oyster"},
+  {"BinomialNomenclature": "Mastocarpus stellatus", "CommonName": "False Irish Moss"},
+  {"BinomialNomenclature": "Anguispira alternata", "CommonName": "Flamed Tigersnail"},
+  {"BinomialNomenclature": "Littorina obtusata", "CommonName": "Flat Periwinkle"},
+  {"BinomialNomenclature": "Skeneopsis planorbis", "CommonName": "Flat Skeneopsis"},
+  {"BinomialNomenclature": "Pagurus pollicaris", "CommonName": "Flat-Clawed Hermit Crab"},
+  {"BinomialNomenclature": "Bothidae spp", "CommonName": "Flounder spp"},
+  {"BinomialNomenclature": "Asterias forbesi", "CommonName": "Forbes' Sea Star"},
+  {"BinomialNomenclature": "Enchelyopus cimbrius", "CommonName": "Fourbeard Rockling"},
+  {"BinomialNomenclature": "Paralichthys oblongus", "CommonName": "Fourspot Flounder"},
+  {"BinomialNomenclature": "Onchidoris muricata", "CommonName": "Fuzzy Onchidoris"},
+  {"BinomialNomenclature": "Sebastes norvegicus", "CommonName": "Golden Redfish"},
+  {"BinomialNomenclature": "Botryllus schlosseri", "CommonName": "Golden Star Tunicate"},
+  {"BinomialNomenclature": "Pandora gouldiana", "CommonName": "Gould's Pandora"},
+  {"BinomialNomenclature": "Hyas araneus", "CommonName": "Great Spider Crab"},
+  {"BinomialNomenclature": "Chaetomorpha linum", "CommonName": "Green Algae"},
+  {"BinomialNomenclature": "Carcinus maenas", "CommonName": "Green Crab"},
+  {"BinomialNomenclature": "Strongylocentrotus droebachiensis", "CommonName": "Green Sea Urchin"},
+  {"BinomialNomenclature": "Ulva intestinalis", "CommonName": "Gutweed"},
+  {"BinomialNomenclature": "Melanogrammus aeglefinus", "CommonName": "Haddock"},
+  {"BinomialNomenclature": "Merluccius/Urophycis spp", "CommonName": "Hake spp"},
+  {"BinomialNomenclature": "Spirorbis borealis", "CommonName": "Hard Tube Worms"},
+  {"BinomialNomenclature": "Pagurus spp", "CommonName": "Hermit Crab"},
+  {"BinomialNomenclature": "Clupeidae spp", "CommonName": "Herring spp"},
+  {"BinomialNomenclature": "Modiolus Modiolus", "CommonName": "Horse Mussel"},
+  {"BinomialNomenclature": "Pectinariidae", "CommonName": "Ice Cream Cone Worm"},
+  {"BinomialNomenclature": "Chondrus crispus", "CommonName": "Irish Moss"},
+  {"BinomialNomenclature": "Caprella mutica", "CommonName": "Japanese Skeleton Shrimp"},
+  {"BinomialNomenclature": "Anomia simplex", "CommonName": "Jingle Shell"},
+  {"BinomialNomenclature": "Cancer borealis", "CommonName": "Jonah Crab"},
+  {"BinomialNomenclature": "Busycon carica", "CommonName": "Knobbed Whelk"},
+  {"BinomialNomenclature": "Ascophyllum nodosum", "CommonName": "Knotted Wrack"},
+  {"BinomialNomenclature": "Cyanea capillata", "CommonName": "Lion's Mane Jellyfish"},
+  {"BinomialNomenclature": "Raja erinacea", "CommonName": "Little Skate"},
+  {"BinomialNomenclature": "Pagurus longicarpus", "CommonName": "Long-Clawed Hermit Crab"},
+  {"BinomialNomenclature": "Urophycis chesteri", "CommonName": "Longfin Hake"},
+  {"BinomialNomenclature": "Myoxocephalus octodecemspinosus", "CommonName": "Longhorn Sculpin"},
+  {"BinomialNomenclature": "Cyclopterus lumpus", "CommonName": "Lumpfish"},
+  {"BinomialNomenclature": "Squilla empusa", "CommonName": "Mantis Shrimp"},
+  {"BinomialNomenclature": "Deroceras laeve", "CommonName": "Meadow Slug"},
+  {"BinomialNomenclature": "Chorda filum", "CommonName": "Mermaid's Tresses"},
+  {"BinomialNomenclature": "Panopeus spp", "CommonName": "Mud Crab"},
+  {"BinomialNomenclature": "Fundulus heterclitus", "CommonName": "Mummichog"},
+  {"BinomialNomenclature": "Rhynchocoela", "CommonName": "Nemertean Worms"},
+  {"BinomialNomenclature": "Cyclocardia borealis", "CommonName": "Northern Cardita"},
+  {"BinomialNomenclature": "Menticirrhus saxatilis", "CommonName": "Northern Kingfish"},
+  {"BinomialNomenclature": "Lacuna vincta", "CommonName": "Northern Lacuna"},
+  {"BinomialNomenclature": "Terebratulina septentrionalis", "CommonName": "Northern Lamp Shell"},
+  {"BinomialNomenclature": "Lunatia heros", "CommonName": "Northern Moon Snail"},
+  {"BinomialNomenclature": "Syngnathus fuscus", "CommonName": "Northern Pipefish"},
+  {"BinomialNomenclature": "Balanus balanoides", "CommonName": "Northern Rock Barnacle"},
+  {"BinomialNomenclature": "Prionotus carolinus", "CommonName": "Northern Searobin"},
+  {"BinomialNomenclature": "Laminaria digitata", "CommonName": "Oarweed"},
+  {"BinomialNomenclature": "Zoarces americanus", "CommonName": "Ocean Pout"},
+  {"BinomialNomenclature": "Urosalpinx cinerea", "CommonName": "Oyster Drill"},
+  {"BinomialNomenclature": "Colpomenia peregrina", "CommonName": "Oyster-Thief"},
+  {"BinomialNomenclature": "Penaeus duorarum", "CommonName": "Pink Shrimp"},
+  {"BinomialNomenclature": "Metridium senile", "CommonName": "Plumose Anemone"},
+  {"BinomialNomenclature": "Polychaeta spp", "CommonName": "Polychaete Worm spp"},
+  {"BinomialNomenclature": "Lamna nasus", "CommonName": "Porbeagle"},
+  {"BinomialNomenclature": "Libinia emarginata", "CommonName": "Portly Spider Crab"},
+  {"BinomialNomenclature": "Porphyra umbilicalis", "CommonName": "Purple Laver"},
+  {"BinomialNomenclature": "Mercenaria mercenaria", "CommonName": "Quahog / Hard-Shell Clam"},
+  {"BinomialNomenclature": "Ulvaria subbifurcata", "CommonName": "Radiated Shanny"},
+  {"BinomialNomenclature": "Osmerus mordax", "CommonName": "Rainbow Smelt"},
+  {"BinomialNomenclature": "Ensis spp", "CommonName": "Razorclam spp"},
+  {"BinomialNomenclature": "Ptilota serrata", "CommonName": "Red Fern"},
+  {"BinomialNomenclature": "Urophycis chuss", "CommonName": "Red Hake"},
+  {"BinomialNomenclature": "Boreochiton ruber", "CommonName": "Red Mail-Shell"},
+  {"BinomialNomenclature": "Coryphella verrucosa", "CommonName": "Red-fingered Coryphella"},
+  {"BinomialNomenclature": "Carronella pellucida", "CommonName": "Red-gilled Nudibranch"},
+  {"BinomialNomenclature": "Palio dubia", "CommonName": "Rim-backed Nudibranch"},
+  {"BinomialNomenclature": "Dendronotus robustus", "CommonName": "Robust Frond-Aeolis"},
+  {"BinomialNomenclature": "Cancer irroratus", "CommonName": "Rock Crab"},
+  {"BinomialNomenclature": "Pholis gunnellus", "CommonName": "Rock Gunnel"},
+  {"BinomialNomenclature": "Palaemon elegans", "CommonName": "Rockpool Prawn"},
+  {"BinomialNomenclature": "Fucus distichus", "CommonName": "Rockweed"},
+  {"BinomialNomenclature": "Eubranchulus rupium", "CommonName": "Rocky Aeolid"},
+  {"BinomialNomenclature": "Littorina saxatilis", "CommonName": "Rough Periwinkle"},
+  {"BinomialNomenclature": "Echinarachnius parma", "CommonName": "Sand Dollar"},
+  {"BinomialNomenclature": "Crangon septemspinosa", "CommonName": "Sand Shrimp"},
+  {"BinomialNomenclature": "Psolus fabricilo", "CommonName": "Scarlet Psolus"},
+  {"BinomialNomenclature": "Gammarus spp", "CommonName": "Scud spp"},
+  {"BinomialNomenclature": "Myoxocephalus spp", "CommonName": "Sculpin spp"},
+  {"BinomialNomenclature": "Leathesia marina", "CommonName": "Sea Cauliflower"},
+  {"BinomialNomenclature": "Psolus spp", "CommonName": "Sea Cucumber"},
+  {"BinomialNomenclature": "Archidoris pseudoargus", "CommonName": "Sea Lemon"},
+  {"BinomialNomenclature": "Ulva lactuca", "CommonName": "Sea Lettuce"},
+  {"BinomialNomenclature": "Phycodrys rubens", "CommonName": "Sea Oak"},
+  {"BinomialNomenclature": "Hemitripterus americanus", "CommonName": "Sea Raven"},
+  {"BinomialNomenclature": "Dendrodoa spp", "CommonName": "Sea Squirt"},
+  {"BinomialNomenclature": "Asterias spp", "CommonName": "Sea Star spp"},
+  {"BinomialNomenclature": "Echinoidea spp", "CommonName": "Sea Urchin spp"},
+  {"BinomialNomenclature": "Ciona intestinalis", "CommonName": "Sea Vase"},
+  {"BinomialNomenclature": "Aeolidia papillosa", "CommonName": "Shag-rug Nudibranch"},
+  {"BinomialNomenclature": "Palaemonetes spp", "CommonName": "Shore Shrimp"},
+  {"BinomialNomenclature": "Myoxocephalus scorpius", "CommonName": "Shorthorn Sculpin"},
+  {"BinomialNomenclature": "Agarum clathratum", "CommonName": "Shotgun Kelp"},
+  {"BinomialNomenclature": "Merluccius Bilinearls", "CommonName": "Silver Hake"},
+  {"BinomialNomenclature": "Merluccius bilinearis", "CommonName": "Silver Hake"},
+  {"BinomialNomenclature": "Colus stimpsoni", "CommonName": "Simpson's Whelk"},
+  {"BinomialNomenclature": "Dasysiphonia japonica", "CommonName": "Siphoned Japan weed"},
+  {"BinomialNomenclature": "Raja spp", "CommonName": "Skate spp"},
+  {"BinomialNomenclature": "Caprella spp", "CommonName": "Skeleton Shrimp"},
+  {"BinomialNomenclature": "Crepidula fornicata", "CommonName": "Slipper Shell"},
+  {"BinomialNomenclature": "Desmarestia viridis", "CommonName": "Soft Sour Weed"},
+  {"BinomialNomenclature": "Mya arenaria", "CommonName": "Soft-shelled Clam"},
+  {"BinomialNomenclature": "Squalus acanthias", "CommonName": "Spiny Dogfish"},
+  {"BinomialNomenclature": "Desmarestia aculeata", "CommonName": "Spiny Sour Weed"},
+  {"BinomialNomenclature": "Fucus spiralis", "CommonName": "Spiral Wrack"},
+  {"BinomialNomenclature": "Porifera spp", "CommonName": "Sponge spp"},
+  {"BinomialNomenclature": "Urophycis regia", "CommonName": "Spotted Hake"},
+  {"BinomialNomenclature": "Cephalopoda spp", "CommonName": "Squid"},
+  {"BinomialNomenclature": "Styela clava", "CommonName": "Stalked Sea Squirt"},
+  {"BinomialNomenclature": "Morone saxatilis", "CommonName": "Striped Bass"},
+  {"BinomialNomenclature": "Diadumene lineata", "CommonName": "Striped Green Sea Anemone"},
+  {"BinomialNomenclature": "Saccharina latissima", "CommonName": "Sugar Kelp"},
+  {"BinomialNomenclature": "Cliona celata", "CommonName": "Sulpher Sponge"},
+  {"BinomialNomenclature": "Paralichthys dentatus", "CommonName": "Summer Flounder"},
+  {"BinomialNomenclature": "Spisula solidissima", "CommonName": "Surf Clam"},
+  {"BinomialNomenclature": "Tautoga onitis", "CommonName": "Tautog"},
+  {"BinomialNomenclature": "Gasterosteus aculeatus", "CommonName": "Three-spined Stickleback"},
+  {"BinomialNomenclature": "Testudinalia testudinalis", "CommonName": "Tortoiseshell Limpet"},
+  {"BinomialNomenclature": "Bonnemaisonia hamifera", "CommonName": "Trailliella"},
+  {"BinomialNomenclature": "Astarte undata", "CommonName": "Waved Astarte"},
+  {"BinomialNomenclature": "Arion subfuscus", "CommonName": "Western Dusky Slug"},
+  {"BinomialNomenclature": "Urophycis tenuis", "CommonName": "White Hake"},
+  {"BinomialNomenclature": "Scophthalmus aquosus", "CommonName": "Windowpane Flounder"},
+  {"BinomialNomenclature": "Pseudopleuronectes americanus", "CommonName": "Winter Flounder"},
+  {"BinomialNomenclature": "Leucoraja ocellata", "CommonName": "Winter Skate"},
+  {"BinomialNomenclature": "Dumontia contorta", "CommonName": "Worm Weed"},
+  {"BinomialNomenclature": "Vertebrata lanosa", "CommonName": "Wrack Siphon Weed"},
+  {"BinomialNomenclature": "Hiatella arctica", "CommonName": "Wrinkled Rock Borer"},
+  {"BinomialNomenclature": "Limanda ferruginea", "CommonName": "Yellowtail Flounder"}
+];
+let rowCount = 0;
+
+// ── Queue ──────────────────────────────────────────────────
+// Each entry: { cruiseID, date, vessel, course, crew, startTime, endTime,
+//               gearType, towNum, startLat, startLon, endLat, endLon,
+//               location, depth, bottomType, seaState, comments, rows[] }
+// rows[]: { bin, com, qty, disp, len, note }
+let cruiseQueue = [];
+
+// ── Cruise ID helpers ──────────────────────────────────────
+function dateToBase(d){ if(!d)return ''; const[y,m,day]=d.split('-'); return 'SML'+y+m+day; }
+
+// Return the next auto suffix given the current date, looking at both queued
+// and the current form's date to count collisions.
+function nextSuffixForDate(dateVal){
+  if(!dateVal) return '-01';
+  const base = dateToBase(dateVal);
+  // Count how many queued cruises share the same base date
+  const existing = cruiseQueue.filter(c => c.cruiseID.startsWith(base));
+  const n = existing.length + 1; // +1 because the current form will become the next
+  return '-' + String(n + 1).padStart(2,'0'); // next after current becomes n+1
+}
+
+function updateCruiseID(){
+  const d = document.getElementById('date').value;
+  const firstOnly = document.getElementById('firstOnly').checked;
+  const suffix = document.getElementById('suffix').value || '-02';
+  const base = dateToBase(d);
+  const id = base ? (firstOnly ? base+'-01' : base+suffix) : '—';
+  document.getElementById('cruisePreview').textContent = id;
+}
+
+function setToday(){
+  const cb = document.getElementById('todayCheck');
+  if(cb.checked){
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth()+1).padStart(2,'0');
+    const d = String(now.getDate()).padStart(2,'0');
+    document.getElementById('date').value = y+'-'+m+'-'+d;
+  }
+  updateCruiseID();
+}
+
+function toggleSuffix(){
+  const firstOnly = document.getElementById('firstOnly').checked;
+  document.getElementById('suffixRow').style.display = firstOnly ? 'none' : 'flex';
+  updateCruiseID();
+}
+
+function getCruiseID(){ const t=document.getElementById('cruisePreview').textContent; return t==='—'?'':t; }
+
+const TOW_GEAR = ['Otter Trawl','Pipe Dredge','Dredge'];
+
+function toggleTrawlAndTow(){
+  const v = document.getElementById('gearType').value;
+  const towField  = document.getElementById('towNumField');
+  const showTow   = TOW_GEAR.includes(v);
+  towField.style.display  = showTow ? 'block' : 'none';
+  if(!showTow) document.getElementById('towNum').value = '';
+  const ts = document.getElementById('trawlSection');
+  if(ts) ts.style.display = v==='Otter Trawl' ? 'grid' : 'none';
+  if(v!=='Otter Trawl'){
+    ['trawlIn','trawlOut','maxWireOut'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  }
+}
+
+// ── Trip-type based autofill (Vessel / Crew) ───────────────
+const INTERTIDAL_LOCATIONS = ["Babb's Cove","Broad Cove","Broadway & 42nd","Devil's Dance Floor","Devil's Glen","Halftide Ledges","Larus Ledge","North Head","Sandpiper Beach","Siren's Cove","Smith's Cove"];
+
+const INTERTIDAL_COORDS = {
+  "Babb's Cove":        {lat:"42 59.2438", lon:"70 37.0131"},
+  "Broad Cove":         {lat:"42 59.3590", lon:"70 36.7884"},
+  "Broadway & 42nd":    {lat:"42 59.5376", lon:"70 36.7752"},
+  "Devil's Dance Floor":{lat:"42 59.5376", lon:"70 36.8505"},
+  "Siren's Cove":       {lat:"42 59.5072", lon:"70 36.8374"},
+  "North Head":         {lat:"42 59.5630", lon:"70 36.8973"},
+  "Larus Ledge":        {lat:"42 59.4797", lon:"70 37.0124"},
+  "Sandpiper Beach":    {lat:"42 59.3957", lon:"70 37.0334"},
+  "Smith's Cove":       {lat:"42 59.1100", lon:"70 37.0716"},
+  "Devil's Glen":       {lat:"42 59.2286", lon:"70 36.5870"},
+  "Halftide Ledges":    {lat:"42 59.1048", lon:"70 36.7385"}
+};
+
+const BEACH_SEINE_LOCATION = "New Castle Eelgrass Bed";
+const BEACH_SEINE_COORDS = {lat:"43 4.0523", lon:"70 42.7613"};
+
+function setAllGPS(lat,lon){
+  document.getElementById('startLat').value = lat;
+  document.getElementById('startLon').value = lon;
+  document.getElementById('endLat').value = lat;
+  document.getElementById('endLon').value = lon;
+}
+
+function applyLocationModeDisplay(){
+  const useTransect = document.getElementById('useTransect').checked;
+  document.getElementById('locationDropdown').style.display = useTransect ? 'none' : 'block';
+  document.getElementById('transectNum').style.display = useTransect ? 'block' : 'none';
+}
+
+// User manually flips the "Use transect number" checkbox — clear whichever value was there
+function toggleLocationMode(){
+  applyLocationModeDisplay();
+  document.getElementById('locationDropdown').value='';
+  document.getElementById('transectNum').value='';
+  document.getElementById('location').value='';
+}
+
+function handleLocationDropdown(){
+  const loc = document.getElementById('locationDropdown').value;
+  document.getElementById('location').value = loc;
+  const coords = INTERTIDAL_COORDS[loc];
+  if(coords) setAllGPS(coords.lat, coords.lon);
+}
+
+function handleTransectInput(){
+  const input = document.getElementById('transectNum');
+  let v = input.value;
+  if(v!==''){
+    let n = parseInt(v,10);
+    if(isNaN(n)) n='';
+    else n = Math.min(28, Math.max(0, n));
+    input.value = n;
+    v = n;
+  }
+  document.getElementById('location').value = v!=='' ? ('Transect ' + v) : '';
+}
+
+function showIntertidalLocationUI(){
+  document.getElementById('transectToggleRow').style.display='flex';
+  document.getElementById('location').style.display='none';
+  applyLocationModeDisplay();
+}
+
+function hideIntertidalLocationUI(){
+  document.getElementById('transectToggleRow').style.display='none';
+  document.getElementById('locationDropdown').style.display='none';
+  document.getElementById('transectNum').style.display='none';
+  document.getElementById('location').style.display='block';
+}
+
+// Restore dropdown/transect UI state from a stored location value (used when loading a queued cruise)
+function syncIntertidalUIFromLocation(){
+  const loc = document.getElementById('location').value || '';
+  const m = loc.match(/^Transect\s+(\d{1,2})$/i);
+  if(m){
+    document.getElementById('useTransect').checked = true;
+    document.getElementById('transectNum').value = m[1];
+    document.getElementById('locationDropdown').value = '';
+  } else {
+    document.getElementById('useTransect').checked = false;
+    document.getElementById('locationDropdown').value = INTERTIDAL_LOCATIONS.includes(loc) ? loc : '';
+    document.getElementById('transectNum').value = '';
+  }
+  applyLocationModeDisplay();
+}
+
+function handleGearTypeChange(){
+  toggleTrawlAndTow();
+  const v = document.getElementById('gearType').value;
+  const vesselSelect = document.getElementById('vessel');
+  const crewInput = document.getElementById('crew');
+  const depthInput = document.getElementById('depth');
+  if(v==='Intertidaling'){
+    vesselSelect.value = 'N/A';
+    toggleOtherVessel();
+    crewInput.value = 'N/A';
+    document.getElementById('useTransect').checked = false;
+    document.getElementById('locationDropdown').value = '';
+    document.getElementById('transectNum').value = '';
+    document.getElementById('location').value = '';
+    showIntertidalLocationUI();
+    depthInput.setAttribute('type','text');
+    depthInput.value = 'N/A';
+    document.getElementById('seaState').value = 'N/A';
+    document.getElementById('bottomType').value = 'Rock';
+  } else {
+    hideIntertidalLocationUI();
+    depthInput.setAttribute('type','number');
+    if(v==='Beach Seine'){
+      vesselSelect.value = 'Inflatable';
+      toggleOtherVessel();
+      document.getElementById('location').value = BEACH_SEINE_LOCATION;
+      setAllGPS(BEACH_SEINE_COORDS.lat, BEACH_SEINE_COORDS.lon);
+      document.getElementById('bottomType').value = 'Sand';
+    }
+  }
+}
+
+// ── Species autocomplete ───────────────────────────────────
+function searchBinomial(q){ return SPECIES.filter(s=>s.BinomialNomenclature.toLowerCase().includes(q)).map(s=>({primary:s.BinomialNomenclature,secondary:s.CommonName,data:s})); }
+function searchCommon(q){ return SPECIES.filter(s=>s.CommonName.toLowerCase().includes(q)).map(s=>({primary:s.CommonName,secondary:s.BinomialNomenclature,data:s})); }
+
+function makeAC(input,listEl,getMatches,onSelect){
+  let active=-1;
+  input.addEventListener('input',()=>{
+    const q=input.value.trim().toLowerCase();listEl.innerHTML='';active=-1;
+    if(q.length<2){listEl.style.display='none';return;}
+    const matches=getMatches(q).slice(0,10);
+    if(!matches.length){listEl.style.display='none';return;}
+    matches.forEach((m,i)=>{
+      const d=document.createElement('div');d.className='ac-item';
+      d.innerHTML=`${m.primary}<span class="ac-sub">${m.secondary}</span>`;
+      d.addEventListener('mousedown',e=>{e.preventDefault();onSelect(m);listEl.style.display='none';});
+      listEl.appendChild(d);
+    });
+    listEl.style.display='block';
+  });
+  input.addEventListener('keydown',e=>{
+    const items=listEl.querySelectorAll('.ac-item');
+    if(e.key==='ArrowDown')active=Math.min(active+1,items.length-1);
+    else if(e.key==='ArrowUp')active=Math.max(active-1,-1);
+    else if(e.key==='Enter'&&active>=0){items[active].dispatchEvent(new Event('mousedown'));e.preventDefault();return;}
+    else if(e.key==='Escape'){listEl.style.display='none';return;}
+    items.forEach((it,i)=>it.classList.toggle('active',i===active));
+  });
+  document.addEventListener('click',e=>{if(!listEl.contains(e.target)&&e.target!==input)listEl.style.display='none';});
+}
+
+function addRow(afterRow=null){
+  rowCount++; const id=rowCount; const tbody=document.getElementById('speciesRows');
+  const tr=document.createElement('tr'); tr.id='row-'+id;
+  tr.innerHTML=`
+    <td class="row-num">${id}</td>
+    <td><div class="ac-wrap"><input id="bin-${id}" placeholder="Binomial…" autocomplete="off"><div class="ac-list" id="binList-${id}"></div></div></td>
+    <td><div class="ac-wrap"><input id="com-${id}" placeholder="Common name…" autocomplete="off"><div class="ac-list" id="comList-${id}"></div></div></td>
+    <td><input type="number" min="0" id="qty-${id}" placeholder="0"></td>
+    <td><select id="disp-${id}"><option value="">—</option><option>Released - Alive</option><option>Released - Dead</option><option>Retained - Sea Table</option><option>Retained - Specimen</option></select></td>
+    <td><input type="number" step="0.1" id="len-${id}" placeholder="—" oninput="splitRowByQuantity(${id})"></td>
+    <td><div style="display:flex;gap:4px;align-items:center"><input id="note-${id}" placeholder="—" style="flex:1"><button type="button" class="row-x-btn" onclick="removeRow(${id})" aria-label="Remove row">×</button></div></td>`;
+  if(afterRow){afterRow.insertAdjacentElement("afterend",tr);}else{tbody.appendChild(tr);}
+  const binInput=document.getElementById("bin-"+id);const comInput=document.getElementById("com-"+id);
+  const binList=document.getElementById("binList-"+id);const comList=document.getElementById("comList-"+id);
+  makeAC(binInput,binList,searchBinomial,m=>{binInput.value=m.data.BinomialNomenclature;comInput.value=m.data.CommonName;comInput.classList.add("filled-flash");setTimeout(()=>comInput.classList.remove("filled-flash"),1200);});
+  makeAC(comInput,comList,searchCommon,m=>{comInput.value=m.data.CommonName;binInput.value=m.data.BinomialNomenclature;binInput.classList.add("filled-flash");setTimeout(()=>binInput.classList.remove("filled-flash"),1200);});
+  return tr;
+}
+
+function removeRow(id){
+  const el=document.getElementById('row-'+id);
+  if(!el) return;
+  const tbody=document.getElementById('speciesRows');
+  if(tbody.children.length<=1){
+    // Don't remove the last remaining row — just clear its fields
+    ['bin-','com-','qty-','disp-','len-','note-'].forEach(prefix=>{
+      const field=document.getElementById(prefix+id);
+      if(field) field.value='';
+    });
+    return;
+  }
+  el.remove();
+}
+function val(id){ return (document.getElementById(id)||{}).value||''; }
+
+function splitRowByQuantity(id){
+  const qtyInput=document.getElementById(`qty-${id}`); const lenInput=document.getElementById(`len-${id}`);
+  const qty=parseInt(qtyInput.value,10);
+  if(!qty||qty<=1)return; if(lenInput.dataset.split==="true")return;
+  lenInput.dataset.split="true"; qtyInput.value=1;
+  const species=document.getElementById(`bin-${id}`).value; const common=document.getElementById(`com-${id}`).value;
+  const disp=document.getElementById(`disp-${id}`).value; const note=document.getElementById(`note-${id}`).value;
+  let currentRow=document.getElementById(`row-${id}`);
+  for(let i=1;i<qty;i++){
+    const newRow=addRow(currentRow); const newID=newRow.id.replace("row-","");
+    document.getElementById(`bin-${newID}`).value=species; document.getElementById(`com-${newID}`).value=common;
+    document.getElementById(`disp-${newID}`).value=disp; document.getElementById(`note-${newID}`).value=note;
+    document.getElementById(`qty-${newID}`).value=1; currentRow=newRow;
+  }
+}
+
+function decimalToDDM(decimal){ const abs=Math.abs(decimal); const degrees=Math.floor(abs); const minutes=(abs-degrees)*60; return `${degrees} ${minutes.toFixed(3)}`; }
+
+function getCurrentGPS(callback){
+  if(!navigator.geolocation){alert("Geolocation is not supported by this browser.");return;}
+  navigator.geolocation.getCurrentPosition(position=>{callback(decimalToDDM(position.coords.latitude),decimalToDDM(position.coords.longitude));},error=>{alert("Unable to retrieve GPS location.\n\n"+error.message);},{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+}
+
+function fillStartGPS(){ getCurrentGPS((lat,lon)=>{ document.getElementById("startLat").value=lat; document.getElementById("startLon").value=lon; }); }
+function fillEndGPS(){ getCurrentGPS((lat,lon)=>{ document.getElementById("endLat").value=lat; document.getElementById("endLon").value=lon; }); }
+
+function toggleOtherVessel(){
+  const select=document.getElementById("vessel"); const other=document.getElementById("otherVessel");
+  if(select.value==='Other'){other.style.display="block";other.focus();}else{other.style.display="none";other.value="";}
+}
+
+// ── Harvest the current form into a cruise object ──────────
+function harvestCurrentCruise(){
+  const cruiseID = getCruiseID();
+  const date = val('date');
+  const vessel = val('vessel')==='Other' ? val('otherVessel') : val('vessel');
+  const rows = [];
+  document.querySelectorAll('#speciesRows tr').forEach(tr=>{
+    const rid = tr.id.replace('row-','');
+    const b = (document.getElementById('bin-'+rid)||{}).value||'';
+    const c = (document.getElementById('com-'+rid)||{}).value||'';
+    const q = (document.getElementById('qty-'+rid)||{}).value||'';
+    const d = (document.getElementById('disp-'+rid)||{}).value||'';
+    const l = (document.getElementById('len-'+rid)||{}).value||'';
+    const n = (document.getElementById('note-'+rid)||{}).value||'';
+    if(b||c||q) rows.push({bin:b,com:c,qty:q,disp:d,len:l,note:n});
+  });
+  const gearType = val('gearType');
+  const isTrawl = gearType === 'Otter Trawl';
+  return {
+    cruiseID, date, vessel,
+    course: val('course'), crew: val('crew'),
+    startTime: val('startTime'), endTime: val('endTime'),
+    gearType, towNum: val('towNum'),
+    trawlIn:    isTrawl ? val('trawlIn')    : '',
+    trawlOut:   isTrawl ? val('trawlOut')   : '',
+    maxWireOut: isTrawl ? val('maxWireOut') : '',
+    startLat: val('startLat'), startLon: val('startLon'),
+    endLat: val('endLat'), endLon: val('endLon'),
+    location: val('location'), depth: val('depth'),
+    bottomType: val('bottomType'), seaState: val('seaState'),
+    comments: val('comments'),
+    rows
+  };
+}
+
+// ── Compute auto-suffix for the NEXT cruise based on date ──
+function computeNextCruiseID(dateVal){
+  if(!dateVal) return '';
+  const base = dateToBase(dateVal);
+  // Count queued cruises with the same base
+  const sameDate = cruiseQueue.filter(c => c.cruiseID.startsWith(base + '-'));
+  // Also count if the form itself has the same date (it will be queued)
+  const nextNum = sameDate.length + 2; // +1 already queued form, +1 for the new one
+  return base + '-' + String(nextNum).padStart(2,'0');
+}
+
+// ── Add current form to queue and reset for next entry ─────
+function addNextCruise(){
+  const cruiseID = getCruiseID();
+  if(!cruiseID){ showMsg('Set a date first to generate a Cruise ID.'); return; }
+  const cruise = harvestCurrentCruise();
+  if(!cruise.rows.length){ showMsg('Add at least one species row before queueing this cruise.'); return; }
+
+  cruiseQueue.push(cruise);
+  renderQueue();
+
+  // Prepare form for next cruise
+  const currentDate = val('date');
+  resetFormFields();
+
+  // Keep the same date and auto-advance the suffix
+  document.getElementById('date').value = currentDate;
+  document.getElementById('todayCheck').checked = false;
+  document.getElementById('firstOnly').checked = false;
+  document.getElementById('suffixRow').style.display = 'flex';
+
+  // Calculate next suffix number
+  const base = dateToBase(currentDate);
+  const sameDate = cruiseQueue.filter(c => c.cruiseID.startsWith(base + '-'));
+  const nextNum = sameDate.length + 1;
+  const nextSuffix = '-' + String(nextNum).padStart(2,'0');
+  document.getElementById('suffix').value = nextSuffix;
+  updateCruiseID();
+
+  showMsg(`Cruise ${cruise.cruiseID} added to queue (${cruise.rows.length} row${cruise.rows.length>1?'s':''}). Fill in the next cruise.`);
+}
+
+// ── Render the queue panel ─────────────────────────────────
+function renderQueue(){
+  const section = document.getElementById('queueSection');
+  const list = document.getElementById('queueList');
+  const badge = document.getElementById('queueBadge');
+  badge.textContent = cruiseQueue.length;
+  section.style.display = cruiseQueue.length ? 'block' : 'none';
+  list.innerHTML = '';
+  if(!cruiseQueue.length){ return; }
+  cruiseQueue.forEach((c,i)=>{
+    const item = document.createElement('div');
+    item.className = 'queue-item';
+    const vesselMeta = c.vessel ? ` · ${c.vessel}` : '';
+    const dateMeta = c.date ? ` · ${c.date}` : '';
+    item.innerHTML = `
+      <div class="queue-item-left">
+        <span class="queue-item-id">${c.cruiseID}</span>
+        <span class="queue-item-meta">${c.date||''}${vesselMeta}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="queue-item-rows">${c.rows.length} row${c.rows.length!==1?'s':''}</span>
+        <div class="queue-item-actions">
+          <button class="btn btn-ghost" style="font-size:12px;padding:4px 8px" onclick="editQueued(${i})"><i class="ti ti-pencil"></i></button>
+          <button class="btn btn-danger-sm" onclick="removeQueued(${i})"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+function removeQueued(i){
+  cruiseQueue.splice(i,1);
+  renderQueue();
+}
+
+function editQueued(i){
+  // Push current form back to queue if it has data
+  const currentID = getCruiseID();
+  const currentCruise = harvestCurrentCruise();
+  if(currentID && currentCruise.rows.length){
+    // Insert it at the end (or could swap)
+    cruiseQueue.push(currentCruise);
+  }
+  // Load the selected queued cruise into the form
+  const c = cruiseQueue.splice(i,1)[0];
+  loadCruiseIntoForm(c);
+  renderQueue();
+}
+
+function loadCruiseIntoForm(c){
+  resetFormFields();
+  document.getElementById('todayCheck').checked = false;
+  document.getElementById('date').value = c.date||'';
+  const vessel = ['JMK','JBH','Gulf Challenger','Inflatable','N/A'].includes(c.vessel) ? c.vessel : (c.vessel?'Other':'');
+  document.getElementById('vessel').value = vessel;
+  if(vessel==='Other'){document.getElementById('otherVessel').value=c.vessel;document.getElementById('otherVessel').style.display='block';}
+  document.getElementById('course').value = c.course||'';
+  document.getElementById('crew').value = c.crew||'';
+  document.getElementById('startTime').value = c.startTime||'';
+  document.getElementById('endTime').value = c.endTime||'';
+  document.getElementById('gearType').value = c.gearType||''; toggleTrawlAndTow();
+  document.getElementById('trawlIn').value = c.trawlIn||'';
+  document.getElementById('trawlOut').value = c.trawlOut||'';
+  document.getElementById('maxWireOut').value = c.maxWireOut||'';
+  document.getElementById('towNum').value = c.towNum||'';
+  document.getElementById('startLat').value = c.startLat||'';
+  document.getElementById('startLon').value = c.startLon||'';
+  document.getElementById('endLat').value = c.endLat||'';
+  document.getElementById('endLon').value = c.endLon||'';
+  document.getElementById('location').value = c.location||'';
+  if(document.getElementById('gearType').value === 'Intertidaling'){
+    showIntertidalLocationUI();
+    syncIntertidalUIFromLocation();
+  } else {
+    hideIntertidalLocationUI();
+  }
+  document.getElementById('depth').setAttribute('type', c.gearType==='Intertidaling' ? 'text' : 'number');
+  document.getElementById('depth').value = c.depth||'';
+  document.getElementById('bottomType').value = c.bottomType||'';
+  document.getElementById('seaState').value = c.seaState||'';
+  document.getElementById('comments').value = c.comments||'';
+  // Restore cruise ID fields
+  const base = dateToBase(c.date||'');
+  if(c.cruiseID===base+'-01'){
+    document.getElementById('firstOnly').checked=true;
+    document.getElementById('suffixRow').style.display='none';
+  } else {
+    document.getElementById('firstOnly').checked=false;
+    document.getElementById('suffixRow').style.display='flex';
+    document.getElementById('suffix').value=c.cruiseID.replace(base,'');
+  }
+  updateCruiseID();
+  // Restore rows
+  c.rows.forEach(r=>{
+    const tr = addRow();
+    const id = tr.id.replace('row-','');
+    document.getElementById('bin-'+id).value=r.bin||'';
+    document.getElementById('com-'+id).value=r.com||'';
+    document.getElementById('qty-'+id).value=r.qty||'';
+    document.getElementById('disp-'+id).value=r.disp||'';
+    document.getElementById('len-'+id).value=r.len||'';
+    document.getElementById('note-'+id).value=r.note||'';
+  });
+}
+
+function clearQueue(){
+  if(!cruiseQueue.length)return;
+  if(!confirm('Remove all queued cruises?'))return;
+  cruiseQueue=[];
+  renderQueue();
+}
+
+// ── Export: queue + current form into one CSV ──────────────
+function exportCSV(){
+  // Harvest current form
+  const currentID = getCruiseID();
+  const currentCruise = harvestCurrentCruise();
+
+  // Build a combined list: all queued + current form (if it has rows)
+  const allCruises = [...cruiseQueue];
+  if(currentCruise.rows.length) allCruises.push(currentCruise);
+
+  const m = document.getElementById('exportMsg');
+  if(!allCruises.length){
+    m.style.display='block';
+    m.textContent='Add at least one species row before exporting.';
+    return;
+  }
+
+  const header='CruiseID,Date,Trip Type,Course,Vessel,Crew,Depth(ft),Bottom type,Sea state,StartTime,EndTime,Location,StartLat,StartLong,EndLat,EndLong,BinomialNomenclature,CommonName,Quantity,Length(cm),Disposition,Comments,Tow #,TrawlIn,TrawlOut,MaxWireOut(m)\n';
+  const esc = v => `"${String(v).replace(/"/g,'""')}"`;
+  let lines = [];
+
+  allCruises.forEach(c=>{
+    c.rows.forEach(r=>{
+      lines.push([
+        esc(c.cruiseID), esc(c.date), esc(c.gearType), esc(c.course), esc(c.vessel), esc(c.crew),
+        esc(c.depth), esc(c.bottomType), esc(c.seaState),
+        esc(c.startTime), esc(c.endTime),
+        esc(c.location),
+        esc(c.startLat), esc(c.startLon), esc(c.endLat), esc(c.endLon),
+        esc(r.bin), esc(r.com), esc(r.qty), esc(r.len), esc(r.disp), esc(r.note||c.comments),
+        esc(c.towNum||''), esc(c.trawlIn||''), esc(c.trawlOut||''), esc(c.maxWireOut||'')
+      ].join(','));
+    });
+  });
+
+  const csv = header + lines.join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+
+  // Name the file after the first cruise date or ID
+  const firstName = allCruises[0].date ? 'SML_'+allCruises[0].date.replace(/-/g,'') : (allCruises[0].cruiseID||'SML_entry');
+  const suffix = allCruises.length>1 ? `_to_${allCruises[allCruises.length-1].cruiseID}` : '';
+  a.href=url; a.download=firstName+suffix+'.csv'; a.click(); URL.revokeObjectURL(url);
+
+  m.style.display='block';
+  m.textContent=`Exported ${lines.length} row${lines.length>1?'s':''} across ${allCruises.length} cruise${allCruises.length>1?'s':''}.`;
+}
+
+// ── Reset helpers ──────────────────────────────────────────
+function resetFormFields(){
+  ['date','vessel','course','crew','startTime','endTime','towNum','trawlIn','trawlOut','maxWireOut','startLat','startLon','endLat','endLon','location','depth','seaState','comments']
+    .forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('gearType').value='';
+  document.getElementById('depth').setAttribute('type','number');
+  document.getElementById('bottomType').value='';
+  document.getElementById('firstOnly').checked=true;
+  document.getElementById('suffixRow').style.display='none';
+  document.getElementById('suffix').value='-02';
+  document.getElementById('todayCheck').checked=true;
+  const ts=document.getElementById('trawlSection'); if(ts)ts.style.display='none';
+  const tf=document.getElementById('towNumField'); if(tf)tf.style.display='none';
+  document.getElementById('otherVessel').style.display='none';
+  document.getElementById('otherVessel').value='';
+  document.getElementById('locationDropdown').value='';
+  document.getElementById('transectNum').value='';
+  document.getElementById('useTransect').checked=false;
+  hideIntertidalLocationUI();
+  document.getElementById('speciesRows').innerHTML='';
+  document.getElementById('cruisePreview').textContent='—';
+  document.getElementById('exportMsg').style.display='none';
+  rowCount=0;
+  addRow();
+  setToday();
+}
+
+function clearForm(){
+  if(cruiseQueue.length){
+    if(!confirm('This will also clear all queued cruises. Continue?'))return;
+    cruiseQueue=[];
+    renderQueue();
+  }
+  resetFormFields();
+}
+
+function showMsg(txt){
+  const m=document.getElementById('exportMsg');
+  m.style.display='block'; m.textContent=txt;
+  setTimeout(()=>{m.style.display='none';},4000);
+}
+
+addRow();
+setToday();
+</script>
