@@ -120,12 +120,39 @@
     z-index:1;
   }
   @media print{
+    /* Most browsers leave "Background graphics" unchecked by default in the
+       print dialog, which silently drops every background-color/background-
+       image on the page — the group-color pills, the table header bars, the
+       seasonality bars, and the "no trips" hatching all rely on those, so
+       without this they render as plain, colorless text. This forces them
+       to print regardless of that checkbox. */
+    *, *::before, *::after{
+      -webkit-print-color-adjust:exact !important;
+      print-color-adjust:exact !important;
+      color-adjust:exact !important;
+    }
     .print-btn{display:none !important;}
     .corner-logo{display:none !important;}
     body{background-image:none !important; background-color:#fff !important;}
-    .card{box-shadow:none !important; page-break-inside:avoid;}
-    .trip-card{page-break-inside:avoid;}
+    /* Cards no longer force themselves onto a fresh page as a whole block —
+       that left large empty gaps when a tall card (e.g. Species Seasonality)
+       didn't fit in the remaining space. Instead we keep only the small,
+       atomic pieces (a single row, a single trip card, a chart) intact and
+       let the card itself split across a page break where needed. */
+    .card{box-shadow:none !important;}
+    .trip-card{page-break-inside:avoid; break-inside:avoid;}
+    .chart-wrap{page-break-inside:avoid; break-inside:avoid;}
+    table.report-table tr{page-break-inside:avoid; break-inside:avoid;}
+    table.report-table thead{display:table-header-group;}
+    .szn-row{page-break-inside:avoid; break-inside:avoid;}
+    .sort-arrow{display:none !important;}
+    th.sortable{cursor:default !important;}
     .hero{background:none !important; color:var(--ink) !important; padding:16px 0 !important;}
+    /* The title text and eyebrow are white for the dark hero gradient on
+       screen; that gradient is removed above for print, so without this
+       override "Pelagic Report" renders as invisible white-on-white text. */
+    .hero h1{color:var(--ink) !important;}
+    .hero .eyebrow{color:var(--gray) !important;}
     .hero p{display:none !important;}
     .hero-wave{display:none !important;}
     .hero-logo-chip{box-shadow:none !important;}
@@ -456,6 +483,22 @@
     .year-block{margin-bottom:14px;}
     details.hint{display:none;}
     .empty-note{font-size:11px;}
+
+    /* Seasonality grid: printing can't scroll horizontally, so the
+       scrollable/min-width layout used on screen would silently clip the
+       right-hand months. Switch to a layout that always fits the full
+       printable width instead. */
+    .szn-scroll{overflow:visible; border:none;}
+    .szn-table{min-width:0; width:100%; table-layout:fixed;}
+    .szn-corner, .szn-species-cell{position:static;}
+    .szn-species-cell{
+      padding:2px 5px; font-size:8px; white-space:normal; overflow-wrap:break-word;
+    }
+    .szn-species-cell .group-pill{padding:0 4px; font-size:7px; margin-right:3px;}
+    .szn-month-row th{font-size:8.5px; padding:3px 0;}
+    .szn-cell{height:16px;}
+    .szn-legend{font-size:9.5px; gap:10px;}
+    .szn-legend-swatch, .szn-legend-nodata{width:10px; height:10px;}
   }
 </style>
 </head>
