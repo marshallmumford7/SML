@@ -219,6 +219,16 @@
     color:#943126;
     font-size:14px;
   }
+  .notice-box{
+    display:none;
+    margin-top:16px;
+    padding:14px 16px;
+    background:#FEF9E7;
+    border:1px solid #F4D03F;
+    border-radius:8px;
+    color:#7D6608;
+    font-size:14px;
+  }
   /* ---------- Options ---------- */
   .options-grid{
     display:grid;
@@ -589,6 +599,7 @@
       <div class="filename" id="filename">No file selected yet</div>
     </div>
     <div class="error-box" id="errorBox"></div>
+    <div class="notice-box" id="noticeBox"></div>
   </div>
 
   <div class="card controls" id="controlsCard" style="display:none;">
@@ -791,6 +802,15 @@ function clearError(){
   errorBox.style.display = 'none';
   errorBox.textContent = '';
 }
+const noticeBox = document.getElementById('noticeBox');
+function showNotice(msg){
+  noticeBox.style.display = 'block';
+  noticeBox.textContent = msg;
+}
+function clearNotice(){
+  noticeBox.style.display = 'none';
+  noticeBox.textContent = '';
+}
 
 function onParsed(results, label){
   try{
@@ -912,6 +932,7 @@ loadUrlBtn.addEventListener('click', () => {
   let url = sheetUrlInput.value.trim();
   if (!url) { showError("Paste a Google Sheet link first."); return; }
   clearError();
+  clearNotice();
 
   // Extract spreadsheet ID and optional gid from whatever link format was pasted
   const idMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
@@ -957,12 +978,27 @@ loadUrlBtn.addEventListener('click', () => {
     });
   }
 
+  // Tracks which endpoint actually supplied the data, so we can tell the
+  // person when the (known-lossy) fallback was used instead of silently
+  // giving them a report that's missing text fields with no explanation.
+  let usedFallback = false;
+
   fetchCsv(csvUrl)
-    .catch(() => fetchCsv(gvizUrl))
-    .then(text => parseGrid(text, "linked sheet"))
+    .catch(primaryErr => {
+      usedFallback = true;
+      console.warn("Direct CSV export failed, falling back to the chart-data endpoint:", primaryErr);
+      return fetchCsv(gvizUrl);
+    })
+    .then(text => {
+      parseGrid(text, "linked sheet");
+      if (usedFallback){
+        showNotice("Loaded, but had to fall back to a Google endpoint that can blank out text fields (Type of trip, Area Visited, Observers, etc.) in columns that are mostly numbers — check those columns below. If they're empty, use File → Download → Comma-separated values (.csv) and upload the file instead, which doesn't have this limitation.");
+      }
+    })
     .catch(err => {
       const isNetworkErr = /failed to fetch/i.test(err.message);
       const msg = isNetworkErr
+
         ? "Couldn't reach that sheet — this is usually a sharing-permissions or CORS issue, not something wrong with the data itself. Make sure it's shared as \"Anyone with the link can view,\" or use File → Download → Comma-separated values (.csv) and upload the file below instead."
         : "Couldn't load that sheet (" + err.message + ").";
       showError(msg);
