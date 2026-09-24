@@ -951,7 +951,8 @@ loadUrlBtn.addEventListener('click', () => {
       return text;
     });
   }
-
+// Auto-load the pre-filled sheet link as soon as the page opens
+loadUrlBtn.click();
   // A "File → Share → Publish to web" link (docs.google.com/…/d/e/{longId}/pub…)
   // is a different, more reliable animal than a plain "anyone with the
   // link" share link: it's Google's own mechanism for exposing a sheet as
