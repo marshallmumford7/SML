@@ -237,6 +237,10 @@
   }
   button.primary:hover{background:var(--ocean-deep);}
   button.primary:disabled{background:#B9C6CD; cursor:not-allowed;}
+  
+  .year-control{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  #yearSelect{min-width:90px;}
+
   /* ---------- Report ---------- */
   #report{display:none;}
   .section-title{
@@ -462,6 +466,8 @@
     </div>
     <div class="toggle-row">
       <label class="opt"><input type="checkbox" id="opt_byyear"> Group by year <span id="yearHint" style="color:var(--gray); font-weight:400;"></span></label>
+      <label for="yearSelect" style="font-size:14px;font-weight:600;">Year:</label>
+      <select id="yearSelect" aria-label="Select year"></select>
       <button class="primary" id="buildBtn">Build report</button>
     </div>
   </div>
@@ -589,9 +595,33 @@ function onParsed(results, label){
     filenameEl.textContent = "Loaded " + label + " — " + STATE.trips.length + " trip(s), " + STATE.sightingsLong.length + " sighting records.";
     controlsCard.style.display = 'block';
     const yearHint = document.getElementById('yearHint');
-    const nYears = new Set(STATE.trips.map(t=>t.year)).size;
-    document.getElementById('opt_byyear').checked = nYears > 1;
-    yearHint.textContent = nYears > 1 ? ("(" + nYears + " years detected)") : "(single season detected)";
+    const years = [...new Set(STATE.trips.map(t => Number(t.year)))]
+      .filter(y => Number.isFinite(y))
+      .sort((a,b) => b-a);
+
+    const yearSelect = document.getElementById('yearSelect');
+    yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+
+    // Default to the current calendar year when it exists in the data;
+    // otherwise use the most recent year available.
+    const currentYear = new Date().getFullYear();
+    yearSelect.value = String(
+      years.includes(currentYear) ? currentYear : (years[0] ?? currentYear)
+    );
+
+    const nYears = years.length;
+    const byYearCheckbox = document.getElementById('opt_byyear');
+    byYearCheckbox.checked = nYears > 1;
+    yearSelect.disabled = byYearCheckbox.checked;
+
+    yearHint.textContent = nYears > 1
+      ? ("(" + nYears + " years detected)")
+      : "(single season detected)";
+
+    // Selecting a year matters when Group by year is OFF.
+    byYearCheckbox.onchange = () => {
+      yearSelect.disabled = byYearCheckbox.checked;
+    };
     document.getElementById('report').style.display = 'none';
   } catch(err){
     console.error(err);
@@ -600,16 +630,66 @@ function onParsed(results, label){
   }
 }
 
+/* ============================== CSV parsing ============================== */
+/*
+ * The source spreadsheet contains real blank/spacer columns.  PapaParse's
+ * header:true turns those blank header cells into duplicate object keys,
+ * which causes values in those columns to overwrite one another.
+ *
+ * Parse as a 2D grid first, preserve every physical column position, then
+ * convert the grid to the object shape expected by processData().
+ */
+function parseGrid(textOrFile, label){
+  Papa.parse(textOrFile, {
+    header: false,
+    skipEmptyLines: 'greedy',
+    dynamicTyping: false,
+
+    complete: results => {
+      try {
+        const grid = results.data;
+        if (!grid || grid.length < 2) {
+          throw new Error("The CSV contains insufficient data.");
+        }
+
+        // Row 0 is the spreadsheet header row.
+        const rawHeaders = grid[0] || [];
+
+        // Give every physical column a unique key. Real headers are kept
+        // unchanged; blank header cells get position-based internal names.
+        const fields = rawHeaders.map((value, index) => {
+          const name = String(value ?? '').trim();
+          return name || `__column_${index}`;
+        });
+
+        // Convert rows back to objects WITHOUT allowing blank cells to shift
+        // the remaining columns. Missing cells are explicitly preserved as "".
+        const rows = grid.slice(1).map(row => {
+          const obj = {};
+          fields.forEach((field, index) => {
+            obj[field] = row[index] ?? '';
+          });
+          return obj;
+        });
+
+        onParsed({
+          data: rows,
+          meta: { fields }
+        }, label);
+      } catch(err) {
+        console.error(err);
+        showError("Couldn't process this data: " + err.message);
+      }
+    },
+
+    error: err => showError("Couldn't parse the data: " + err.message)
+  });
+}
+
 function handleFile(file){
   clearError();
   filenameEl.textContent = "Parsing " + file.name + " …";
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    dynamicTyping: false,
-    complete: results => onParsed(results, file.name),
-    error: err => showError("Couldn't read this file: " + err.message)
-  });
+  parseGrid(file, file.name);
 }
 
 /* ---- Load from a published Google Sheet CSV link ---- */
@@ -646,13 +726,7 @@ loadUrlBtn.addEventListener('click', () => {
       if (/^\s*<(!DOCTYPE|html)/i.test(text)) {
         throw new Error("That link returned a web page, not CSV data — check sharing settings.");
       }
-      Papa.parse(text, {
-        header: true,
-        skipEmptyLines: true,
-        dynamicTyping: false,
-        complete: results => onParsed(results, "linked sheet"),
-        error: err => showError("Couldn't parse the fetched data: " + err.message)
-      });
+      parseGrid(text, "linked sheet");
     })
     .catch(err => {
       showError("Couldn't load that sheet (" + err.message + ").");
@@ -752,7 +826,10 @@ document.getElementById('buildBtn').addEventListener('click', () => {
   if (!STATE) return;
   charts.forEach(c => c.destroy());
   charts = [];
+
   const byYear = document.getElementById('opt_byyear').checked;
+  const selectedYear = Number(document.getElementById('yearSelect').value);
+
   const opts = {
     overview: document.getElementById('opt_overview').checked,
     triplog: document.getElementById('opt_triplog').checked,
@@ -761,11 +838,50 @@ document.getElementById('buildBtn').addEventListener('click', () => {
     totals: document.getElementById('opt_totals').checked,
     bytrip: document.getElementById('opt_bytrip').checked
   };
-  renderReport(STATE, byYear, opts);
+
+  // When Group by year is OFF, report only the selected year.
+  // When it is ON, retain all years and show the year breakdown.
+  const reportState = byYear
+    ? STATE
+    : {
+        ...STATE,
+        trips: STATE.trips.filter(t => t.year === selectedYear),
+        sightingsLong: STATE.sightingsLong.filter(s => s.year === selectedYear)
+      };
+
+  if (!reportState.trips.length) {
+    showError("No trips found for " + selectedYear + ".");
+    return;
+  }
+
+  clearError();
+  renderReport(reportState, byYear, opts);
 });
 
 function renderReport(state, byYear, opts){
-  const { trips, sightingsLong, seasonStart, seasonEnd } = state;
+  // When "Group by year" is OFF, show only the most recent year in the
+  // dataset. This keeps older seasons (such as 2024) out of the report
+  // while still allowing the checkbox to expose all years when enabled.
+  let reportState = state;
+  if (!byYear) {
+    const years = state.trips.map(t => Number(t.year)).filter(Number.isFinite);
+    if (years.length) {
+      const selectedYear = Math.max(...years);
+      const trips = state.trips.filter(t => Number(t.year) === selectedYear);
+      const dateCols = new Set(trips.map(t => t.dateCol));
+      const sightingsLong = state.sightingsLong.filter(s => dateCols.has(s.dateCol));
+      const dates = trips.map(t => t.date);
+      reportState = {
+        ...state,
+        trips,
+        sightingsLong,
+        seasonStart: dates.length ? new Date(Math.min(...dates)) : state.seasonStart,
+        seasonEnd: dates.length ? new Date(Math.max(...dates)) : state.seasonEnd
+      };
+    }
+  }
+
+  const { trips, sightingsLong, seasonStart, seasonEnd } = reportState;
   const report = document.getElementById('report');
   report.innerHTML = '';
   report.style.display = 'block';
@@ -847,7 +963,7 @@ function renderReport(state, byYear, opts){
     chartWrap.appendChild(canvas);
     card.appendChild(chartWrap);
     report.appendChild(card);
-    buildMedianChart(canvas, state, byYear);
+    buildMedianChart(canvas, reportState, byYear);
   }
 
   // ---- Species per hour chart ----
@@ -858,7 +974,7 @@ function renderReport(state, byYear, opts){
     chartWrap.appendChild(canvas);
     card.appendChild(chartWrap);
     report.appendChild(card);
-    buildEffortChart(canvas, state, byYear);
+    buildEffortChart(canvas, reportState, byYear);
   }
 
   // ---- Species totals ----
