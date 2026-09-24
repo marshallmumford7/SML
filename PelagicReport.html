@@ -934,35 +934,6 @@ loadUrlBtn.addEventListener('click', () => {
   clearError();
   clearNotice();
 
-  // Extract spreadsheet ID and optional gid from whatever link format was pasted
-  const idMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-  const gidMatch = url.match(/[?&#]gid=(\d+)/);
-
-  if (!idMatch) {
-    showError("Couldn't find a spreadsheet ID in that link. Paste the normal edit link (docs.google.com/spreadsheets/d/…/edit).");
-    return;
-  }
-
-  const sheetId = idMatch[1];
-  const gid = gidMatch ? gidMatch[1] : "0";
-  // Deliberately NOT using the /gviz/tq?tqx=out:csv endpoint as the primary
-  // source: that's the Google Charts "Visualization API" data source, which
-  // infers one data type per COLUMN across the whole sheet and silently
-  // nulls out any cell that doesn't match it. Every date column in this
-  // sheet is mostly numeric species counts with a handful of genuinely-text
-  // meta rows (Type of trip, Area Visited, Observers, ...), so gviz was
-  // inferring those columns as numeric and discarding the text rows as
-  // empty before the response ever reached us — no amount of parsing here
-  // could recover that, since Google's server had already dropped it. The
-  // plain "download as CSV" export endpoint has no such type inference: it
-  // returns each cell's literal display text exactly like File → Download
-  // → CSV does, which is why that manual path always worked correctly.
-  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
-  // Kept only as a fallback in case a given sheet's sharing setup responds
-  // to one endpoint but not the other; gviz's per-column type inference
-  // means text fields can still come through blank when this path is used.
-  const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
-
   filenameEl.textContent = "Fetching sheet…";
   loadUrlBtn.disabled = true;
 
@@ -978,6 +949,56 @@ loadUrlBtn.addEventListener('click', () => {
     });
   }
 
+  // A "File → Share → Publish to web" link (docs.google.com/…/d/e/{longId}/pub…)
+  // is a different, more reliable animal than a plain "anyone with the
+  // link" share link: it's Google's own mechanism for exposing a sheet as
+  // public, anonymously-fetchable data, so unlike the two endpoints below
+  // it has neither the CORS restriction of /export nor the per-column type
+  // coercion of /gviz. If that's what was pasted, just use it directly.
+  const pubMatch = url.match(/\/d\/e\/([a-zA-Z0-9-_]+)\/pub/);
+  const gidMatch = url.match(/[?&#]gid=(\d+)/);
+  const gid = gidMatch ? gidMatch[1] : "0";
+
+  if (pubMatch){
+    const pubUrl = `https://docs.google.com/spreadsheets/d/e/${pubMatch[1]}/pub?gid=${gid}&single=true&output=csv`;
+    fetchCsv(pubUrl)
+      .then(text => parseGrid(text, "linked sheet"))
+      .catch(err => {
+        showError("Couldn't load that published sheet (" + err.message + "). Double check it's still published (File → Share → Publish to web).");
+        filenameEl.textContent = "No file selected yet";
+      })
+      .finally(() => { loadUrlBtn.disabled = false; });
+    return;
+  }
+
+  // Otherwise this is a normal share/edit link. Extract the spreadsheet ID
+  // and try the two endpoints below, in order of preference:
+  const idMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if (!idMatch) {
+    showError("Couldn't find a spreadsheet ID in that link. Paste the normal edit link (docs.google.com/spreadsheets/d/…/edit) or a Publish-to-web link.");
+    loadUrlBtn.disabled = false;
+    return;
+  }
+  const sheetId = idMatch[1];
+
+  // 1) The plain "download as CSV" export endpoint: no per-column type
+  //    inference, so text comes through exactly as typed — but for a
+  //    merely-shared (not published) file, Google often refuses this to
+  //    anonymous cross-origin fetch() calls (it's normally reached by a
+  //    logged-in browser tab doing File → Download, not a script on
+  //    another site), which is the "Failed to fetch" case this is here to
+  //    catch and fall back from.
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+  // 2) The Google Charts "Visualization API" data source. This DOES allow
+  //    anonymous cross-origin fetch for a shared file, which is why it's
+  //    kept as the fallback — but it infers one data type per COLUMN
+  //    across the whole sheet, so a column that's mostly numeric species
+  //    counts with a few genuinely-text meta rows (Type of trip, Area
+  //    Visited, Observers, ...) gets those text rows silently blanked
+  //    before the response ever reaches us. No parsing here can recover
+  //    that, since Google's own server already discarded it.
+  const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
+
   // Tracks which endpoint actually supplied the data, so we can tell the
   // person when the (known-lossy) fallback was used instead of silently
   // giving them a report that's missing text fields with no explanation.
@@ -992,7 +1013,7 @@ loadUrlBtn.addEventListener('click', () => {
     .then(text => {
       parseGrid(text, "linked sheet");
       if (usedFallback){
-        showNotice("Loaded, but had to fall back to a Google endpoint that can blank out text fields (Type of trip, Area Visited, Observers, etc.) in columns that are mostly numbers — check those columns below. If they're empty, use File → Download → Comma-separated values (.csv) and upload the file instead, which doesn't have this limitation.");
+        showNotice("Loaded, but had to fall back to a Google endpoint that can blank out text fields (Type of trip, Area Visited, Observers, etc.) in columns that are mostly numbers — check those columns below. For a permanent fix, use File → Share → Publish to web in Google Sheets, choose this sheet and Comma-separated values (.csv), click Publish, and paste that link here instead — it doesn't have this limitation. (File → Download → CSV and uploading the file below also works, without needing a link at all.)");
       }
     })
     .catch(err => {
