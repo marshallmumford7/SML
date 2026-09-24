@@ -623,6 +623,16 @@ const GROUP_ORDER = ["Fish","Mammal","Bird","Other"];
 const GROUP_COLORS = {"Fish":"#148F77","Mammal":"#1B4F72","Bird":"#5D8AA8","Other":"#717D7E"};
 const META_LABELS = ["Start Time","End Time","Type of trip","Area Visited","Sea State","Visibility","Observers","Bird person - name(s)","Mammal Person - names(s)"];
 const EXCLUDED_LABELS = new Set([...META_LABELS, "Number of species seen on trip","Count of species","Fish person - name(s)","Map?"]);
+const MONTH_NAMES = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+
+// Row labels ("Start Time", "Type of trip", a species name, ...) are matched
+// after trimming, collapsing internal whitespace, lowercasing, and dropping
+// trailing punctuation, so a header typed as "Type of Trip:" or "TYPE OF
+// TRIP" still matches "Type of trip" instead of silently coming up empty.
+function normLabel(s){
+  return (s === undefined || s === null) ? "" : String(s).trim().toLowerCase().replace(/\s+/g, ' ').replace(/[:.\-–—]+$/, '').trim();
+}
+const EXCLUDED_LABELS_NORM = new Set([...EXCLUDED_LABELS].map(normLabel));
 
 function assignGroup(species){
   if (FISH_SPECIES.includes(species)) return "Fish";
@@ -634,6 +644,9 @@ function assignGroup(species){
 /* ============================== Parsing helpers ============================== */
 function parseDateHeader(h){
   const s = String(h).trim();
+  if (!s) return null;
+
+  // M/D/YYYY, M-D-YYYY, M.D.YYYY (2- or 4-digit year)
   let m = s.match(/^(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})$/);
   if (m){
     let [, mo, d, y] = m;
@@ -641,12 +654,48 @@ function parseDateHeader(h){
     const dt = new Date(parseInt(y), parseInt(mo)-1, parseInt(d));
     if (!isNaN(dt)) return dt;
   }
-  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+
+  // ISO YYYY-MM-DD, optionally followed by a time component (e.g. what a
+  // Date-formatted cell can come through as: "2026-05-27 00:00:00").
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ].*)?$/);
   if (m){
     const [, y, mo, d] = m;
     const dt = new Date(parseInt(y), parseInt(mo)-1, parseInt(d));
     if (!isNaN(dt)) return dt;
   }
+
+  // Month-name formats: "May 27, 2026", "May 27 2026", "27 May 2026"
+  m = s.match(/^([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})$/);
+  if (m){
+    const mo = MONTH_NAMES[m[1].slice(0,3).toLowerCase()];
+    if (mo !== undefined){
+      const dt = new Date(parseInt(m[3]), mo, parseInt(m[2]));
+      if (!isNaN(dt)) return dt;
+    }
+  }
+  m = s.match(/^(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]{3,9})\.?,?\s+(\d{4})$/);
+  if (m){
+    const mo = MONTH_NAMES[m[2].slice(0,3).toLowerCase()];
+    if (mo !== undefined){
+      const dt = new Date(parseInt(m[3]), mo, parseInt(m[1]));
+      if (!isNaN(dt)) return dt;
+    }
+  }
+
+  // A raw Excel/Sheets date serial (days since 1899-12-30), in case a date
+  // column ends up formatted as a plain number rather than a date. The
+  // range check keeps this from misreading an unrelated 5-digit number
+  // (roughly limits it to the years 2002–2064).
+  m = s.match(/^\d{5}$/);
+  if (m){
+    const serial = parseInt(s, 10);
+    if (serial > 37000 && serial < 60000){
+      const utc = Date.UTC(1899, 11, 30) + serial * 86400000;
+      const dt = new Date(utc);
+      if (!isNaN(dt)) return new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+    }
+  }
+
   return null;
 }
 
@@ -894,7 +943,8 @@ function processData(rows, fields){
   const norm = s => (s === undefined || s === null) ? "" : String(s).trim();
 
   function getMetaRow(label){
-    const row = rows.find(r => norm(r[labelCol]) === label);
+    const target = normLabel(label);
+    const row = rows.find(r => normLabel(r[labelCol]) === target);
     const out = {};
     dateCols.forEach(c => out[c] = row ? norm(row[c]) : "");
     return out;
@@ -922,10 +972,14 @@ function processData(rows, fields){
 
   // Species rows = any non-blank label that isn't a known metadata/summary row.
   // (We don't rely on a fixed Sort-order numeric range, since that range is
-  // specific to one sheet's layout and shifts as species are added.)
+  // specific to one sheet's layout and shifts as species are added.) The
+  // exclusion check is case/whitespace-normalized for the same reason the
+  // meta-row lookup above is, so a slightly differently-typed label (extra
+  // space, different case, a trailing colon) still gets excluded instead of
+  // showing up as a bogus "species".
   const speciesRows = rows.filter(r => {
     const label = norm(r[labelCol]);
-    return label && !EXCLUDED_LABELS.has(label);
+    return label && !EXCLUDED_LABELS_NORM.has(normLabel(label));
   });
 
   const tripByCol = {};
