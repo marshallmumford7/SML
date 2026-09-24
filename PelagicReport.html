@@ -497,7 +497,6 @@
       margin-bottom:12px; min-width:0;
       page-break-inside:avoid; break-inside:avoid;
     }
-    .chart-card-median{flex:0 1 380px;}
     .chart-card-effort{flex:0 1 300px;}
     .chart-row-single .chart-card{flex:1 1 100%;}
     .chart-row .chart-wrap{max-width:none;}
@@ -606,7 +605,6 @@
     <div class="options-grid">
       <label class="opt"><input type="checkbox" id="opt_overview" checked> Season Overview</label>
       <label class="opt"><input type="checkbox" id="opt_triplog" checked> Trip Log</label>
-      <label class="opt"><input type="checkbox" id="opt_median" checked> Median Species Count chart</label>
       <label class="opt"><input type="checkbox" id="opt_effort" checked> Species per Hour chart</label>
       <label class="opt"><input type="checkbox" id="opt_totals" checked> Species Totals</label>
       <label class="opt"><input type="checkbox" id="opt_bytrip" checked> Sightings by Trip</label>
@@ -756,12 +754,6 @@ function parseClockTime(str){
 function fmtDate(d, opts){
   if (!d) return "";
   return d.toLocaleDateString('en-US', opts || {month:'short', day:'numeric', year:'numeric'});
-}
-function median(arr){
-  if (!arr.length) return 0;
-  const s = [...arr].sort((a,b)=>a-b);
-  const mid = Math.floor(s.length/2);
-  return s.length % 2 ? s[mid] : (s[mid-1]+s[mid])/2;
 }
 function commas(n){ return Math.round(n).toLocaleString('en-US'); }
 function pillClass(g){ return "pill-" + g.replace(/\s+/g,"-"); }
@@ -1135,7 +1127,6 @@ document.getElementById('buildBtn').addEventListener('click', () => {
   const opts = {
     overview: document.getElementById('opt_overview').checked,
     triplog: document.getElementById('opt_triplog').checked,
-    median: document.getElementById('opt_median').checked,
     effort: document.getElementById('opt_effort').checked,
     totals: document.getElementById('opt_totals').checked,
     bytrip: document.getElementById('opt_bytrip').checked,
@@ -1277,45 +1268,7 @@ function renderReport(state, byYear, opts){
     report.appendChild(card);
   }
 
-  // ---- Median species count & Species per hour charts ----
-  // Grouped into a shared row so the print layout can place them side by
-  // side when there's room, instead of always stretching each chart to
-  // the full page width regardless of how much space its content needs.
-  if (opts.median || opts.effort){
-    const chartRow = el('div', 'chart-row');
-    // If only one of the two charts is included, let it use the full row
-    // width instead of sizing itself for a side-by-side layout it isn't
-    // actually sharing.
-    if (!(opts.median && opts.effort)) chartRow.classList.add('chart-row-single');
-    report.appendChild(chartRow);
-
-    if (opts.median){
-      const card = el('div', 'card chart-card chart-card-median');
-      const st = el('div', 'section-title');
-      st.innerHTML = '<h2>Median Species Count</h2>';
-      card.appendChild(st);
-      const chartWrap = el('div', 'chart-wrap');
-      const canvas = document.createElement('canvas');
-      chartWrap.appendChild(canvas);
-      card.appendChild(chartWrap);
-      chartRow.appendChild(card);
-      buildMedianChart(canvas, reportState, byYear);
-    }
-
-    if (opts.effort){
-      const card = el('div', 'card chart-card chart-card-effort');
-      const st = el('div', 'section-title');
-      st.innerHTML = '<h2>Species per Hour</h2>';
-      card.appendChild(st);
-      const chartWrap = el('div', 'chart-wrap short');
-      const canvas = document.createElement('canvas');
-      chartWrap.appendChild(canvas);
-      card.appendChild(chartWrap);
-      chartRow.appendChild(card);
-      buildEffortChart(canvas, reportState, byYear);
-    }
-  }
-
+  
   // ---- Species totals ----
   if (opts.totals){
     const card = sectionCard('Species Summary (All Trips)');
@@ -1641,68 +1594,6 @@ function buildSeasonalityChart(sightingsLong, trips){
 }
 
 /* ============================== Charts ============================== */
-function buildMedianChart(canvas, state, byYear){
-  const { sightingsLong, trips, dateCols } = state;
-  const allSpecies = [...new Set(sightingsLong.map(s=>s.species))];
-  let medians; // [{species, group, median}]
-
-  if (byYear){
-    const years = [...new Set(trips.map(t=>t.year))];
-    medians = allSpecies.map(sp => {
-      const group = assignGroup(sp);
-      const perYear = years.map(y => {
-        return sightingsLong.filter(s=>s.species===sp && s.year===y).reduce((a,s)=>a+s.count,0);
-      });
-      return {species:sp, group, median: median(perYear)};
-    });
-  } else {
-    medians = allSpecies.map(sp => {
-      const group = assignGroup(sp);
-      const perTrip = dateCols.map(dc => {
-        return sightingsLong.filter(s=>s.species===sp && s.dateCol===dc).reduce((a,s)=>a+s.count,0);
-      });
-      return {species:sp, group, median: median(perTrip)};
-    });
-  }
-
-  medians = medians.filter(m => m.median > 0);
-  const top = [];
-  GROUP_ORDER.forEach(g => {
-    const inGroup = medians.filter(m=>m.group===g).sort((a,b)=>b.median-a.median).slice(0,3);
-    top.push(...inGroup);
-  });
-  top.sort((a,b)=>{
-    const go = GROUP_ORDER.indexOf(a.group)-GROUP_ORDER.indexOf(b.group);
-    return go !== 0 ? go : b.median - a.median;
-  });
-  top.reverse(); // horizontal bar reads bottom-up
-
-  const ch = new Chart(canvas, {
-    type:'bar',
-    data:{
-      labels: top.map(t=>t.species),
-      datasets:[{
-        label:'Median count',
-        data: top.map(t=>t.median),
-        backgroundColor: top.map(t=>GROUP_COLORS[t.group]),
-        borderRadius:4
-      }]
-    },
-    options:{
-      indexAxis:'y',
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{display:false},
-        title:{display:true, text:'Median Count per ' + (byYear?'Year':'Trip') + ' by Species', color:'#1B4F72', font:{size:14, weight:'600', family:"'Fraunces', serif"}}
-      },
-      scales:{
-        x:{ beginAtZero:true, grid:{color:'#E8F0F4'} },
-        y:{ grid:{display:false} }
-      }
-    }
-  });
-  charts.push(ch);
-}
 
 function buildEffortChart(canvas, state, byYear){
   const { sightingsLong, trips } = state;
