@@ -315,6 +315,40 @@
     height:100% !important;
   }
   .chart-wrap.short{height:300px;}
+  /* ---------- Seasonality (Merlin/eBird-style bar chart) ---------- */
+  .szn-scroll{overflow-x:auto; margin-top:6px; border:1px solid var(--line); border-radius:8px;}
+  .szn-table{border-collapse:collapse; width:100%; min-width:760px;}
+  .szn-table td, .szn-table th{padding:0; border:none;}
+  .szn-month-row th{
+    font-size:11px; font-weight:700; color:#fff; background:var(--ocean);
+    text-align:center; padding:5px 0; letter-spacing:0.02em;
+    border-left:1px solid rgba(255,255,255,0.35);
+  }
+  .szn-month-row th:first-child{border-left:none;}
+  .szn-corner{background:var(--ocean-deep) !important; position:sticky; left:0; z-index:3;}
+  .szn-species-cell{
+    padding:3px 10px; white-space:nowrap; font-size:12.5px; text-align:left;
+    background:#fff; position:sticky; left:0; z-index:2; border-right:1px solid var(--line);
+  }
+  .szn-row:nth-child(even) .szn-species-cell, .szn-row:nth-child(even) .szn-cell{background:#F3F8FB;}
+  .szn-cell{
+    position:relative; height:24px; min-width:11px;
+    border-left:1px solid #fff; vertical-align:bottom;
+  }
+  .szn-bar{
+    position:absolute; bottom:1px; left:1px; right:1px; border-radius:1px;
+  }
+  .szn-nodata{
+    position:absolute; inset:1px;
+    background-image:repeating-linear-gradient(45deg, #E2E6E9, #E2E6E9 2px, #F4F6F7 2px, #F4F6F7 4px);
+  }
+  .szn-legend{display:flex; flex-wrap:wrap; gap:16px; align-items:center; font-size:12.5px; color:var(--gray); margin-top:10px;}
+  .szn-legend-swatch{display:inline-block; width:14px; height:14px; border-radius:2px; vertical-align:-2px; margin-right:5px;}
+  .szn-legend-nodata{
+    display:inline-block; width:14px; height:14px; border-radius:2px; vertical-align:-2px; margin-right:5px;
+    background-image:repeating-linear-gradient(45deg, #E2E6E9, #E2E6E9 2px, #F4F6F7 2px, #F4F6F7 4px);
+    border:1px solid var(--line);
+  }
   .year-block{margin-bottom:34px;}
   .year-header{
     display:inline-block;
@@ -463,6 +497,7 @@
       <label class="opt"><input type="checkbox" id="opt_effort" checked> Species per Hour chart</label>
       <label class="opt"><input type="checkbox" id="opt_totals" checked> Species Totals</label>
       <label class="opt"><input type="checkbox" id="opt_bytrip" checked> Sightings by Trip</label>
+      <label class="opt" id="opt_seasonality_label"><input type="checkbox" id="opt_seasonality" checked disabled> Seasonality chart <span style="color:var(--gray); font-weight:400;">(needs Group by year)</span></label>
     </div>
     <div class="toggle-row">
       <label class="opt"><input type="checkbox" id="opt_byyear"> Group by year <span id="yearHint" style="color:var(--gray); font-weight:400;"></span></label>
@@ -618,9 +653,18 @@ function onParsed(results, label){
       ? ("(" + nYears + " years detected)")
       : "(single season detected)";
 
+    const seasonalityCheckbox = document.getElementById('opt_seasonality');
+    const updateSeasonalityAvailability = () => {
+      seasonalityCheckbox.disabled = !byYearCheckbox.checked;
+    };
+    updateSeasonalityAvailability();
+
     // Selecting a year matters when Group by year is OFF.
+    // The seasonality chart only makes sense when Group by year is ON,
+    // since it pools sightings across years to show a month-by-month pattern.
     byYearCheckbox.onchange = () => {
       yearSelect.disabled = byYearCheckbox.checked;
+      updateSeasonalityAvailability();
     };
     document.getElementById('report').style.display = 'none';
   } catch(err){
@@ -828,7 +872,7 @@ document.getElementById('buildBtn').addEventListener('click', () => {
   charts = [];
 
   const byYear = document.getElementById('opt_byyear').checked;
-  const selectedYear = Number(document.getElementById('yearSelect').value);
+  const selectedYear = document.getElementById('yearSelect').value;
 
   const opts = {
     overview: document.getElementById('opt_overview').checked,
@@ -836,7 +880,8 @@ document.getElementById('buildBtn').addEventListener('click', () => {
     median: document.getElementById('opt_median').checked,
     effort: document.getElementById('opt_effort').checked,
     totals: document.getElementById('opt_totals').checked,
-    bytrip: document.getElementById('opt_bytrip').checked
+    bytrip: document.getElementById('opt_bytrip').checked,
+    seasonality: document.getElementById('opt_seasonality').checked
   };
 
   // When Group by year is OFF, report only the selected year.
@@ -952,6 +997,15 @@ function renderReport(state, byYear, opts){
       table = makeSortableTable(tripColumns, trips, t => `<tr><td>${fmtDate(t.date)}</td><td>${t.startTime||''} – ${t.endTime||''}</td><td>${t.tripType||''}</td><td>${t.area||''}</td><td class="num">${t.speciesCount||0}</td><td class="num">${commas(t.totalAnimals||0)}</td></tr>`);
     }
     card.appendChild(table);
+    report.appendChild(card);
+  }
+
+  // ---- Seasonality (Merlin/eBird-style bar chart) ----
+  // Only meaningful when pooling multiple years, since it shows the
+  // month-by-month pattern of occurrence across the whole dataset.
+  if (opts.seasonality && byYear){
+    const card = sectionCard('Species Seasonality');
+    card.appendChild(buildSeasonalityChart(sightingsLong, trips));
     report.appendChild(card);
   }
 
@@ -1157,6 +1211,120 @@ function el(tag, cls){
   const e = document.createElement(tag);
   if (cls) e.className = cls;
   return e;
+}
+
+/* ============================== Seasonality (Merlin/eBird-style bar chart) ============================== */
+// Renders a species x week grid (4 bins per month, 48 total), pooling
+// sightings across every year in the dataset. Bar height = the share of
+// trips run in that week-of-year that recorded the species; a hatched
+// cell means no trips were run in that window at all (like Merlin/eBird's
+// "insufficient data" hatching), rather than the species being absent.
+function buildSeasonalityChart(sightingsLong, trips){
+  const MONTHS = ['May','Jun','Jul','Aug'];
+  const FIRST_MONTH = 4; // May (0-indexed); chart covers May through end of August
+  const BINS_PER_MONTH = 4;
+  const N_MONTHS = MONTHS.length;
+  const BINS = N_MONTHS * BINS_PER_MONTH;
+
+  function binOf(date){
+    const m = date.getMonth() - FIRST_MONTH;
+    const day = date.getDate();
+    const w = Math.min(BINS_PER_MONTH - 1, Math.floor((day - 1) / 7));
+    return m * BINS_PER_MONTH + w;
+  }
+
+  // How many distinct trips fall in each week-bin, across all years.
+  // Trips outside May–Aug produce a bin index outside [0, BINS) and are
+  // simply not counted, since the chart only covers that window.
+  const effort = new Array(BINS).fill(0);
+  trips.forEach(t => { const b = binOf(t.date); if (b >= 0 && b < BINS) effort[b]++; });
+
+  const speciesGroup = {};
+  sightingsLong.forEach(s => { speciesGroup[s.species] = s.group; });
+  const speciesList = Object.keys(speciesGroup);
+
+  // occ[species][bin] = Set of trip dateCols where the species was recorded.
+  const occ = {};
+  speciesList.forEach(sp => { occ[sp] = new Array(BINS).fill(0).map(() => new Set()); });
+  sightingsLong.forEach(s => {
+    const b = binOf(s.date);
+    if (b >= 0 && b < BINS) occ[s.species][b].add(s.dateCol);
+  });
+
+  const sortedSpecies = [...speciesList].sort((a, b) => {
+    const go = GROUP_ORDER.indexOf(speciesGroup[a]) - GROUP_ORDER.indexOf(speciesGroup[b]);
+    return go !== 0 ? go : a.localeCompare(b);
+  });
+
+  const wrap = el('div', 'szn-scroll');
+  const table = document.createElement('table');
+  table.className = 'szn-table';
+
+  const thead = document.createElement('thead');
+  const monthRow = document.createElement('tr');
+  monthRow.className = 'szn-month-row';
+  const corner = document.createElement('th');
+  corner.className = 'szn-corner';
+  monthRow.appendChild(corner);
+  MONTHS.forEach(m => {
+    const th = document.createElement('th');
+    th.colSpan = BINS_PER_MONTH;
+    th.textContent = m;
+    monthRow.appendChild(th);
+  });
+  thead.appendChild(monthRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  sortedSpecies.forEach(sp => {
+    const tr = document.createElement('tr');
+    tr.className = 'szn-row';
+    const nameCell = document.createElement('td');
+    nameCell.className = 'szn-species-cell';
+    nameCell.innerHTML = `<span class="group-pill ${pillClass(speciesGroup[sp])}" style="padding:1px 6px; font-size:9.5px; margin-right:6px;">${speciesGroup[sp][0]}</span>${sp}`;
+    tr.appendChild(nameCell);
+
+    for (let b = 0; b < BINS; b++){
+      const td = document.createElement('td');
+      td.className = 'szn-cell';
+      const nTripsInBin = effort[b];
+      if (nTripsInBin === 0){
+        const nodata = document.createElement('div');
+        nodata.className = 'szn-nodata';
+        td.appendChild(nodata);
+      } else {
+        const nHits = occ[sp][b].size;
+        if (nHits > 0){
+          const freq = nHits / nTripsInBin;
+          const bar = document.createElement('div');
+          bar.className = 'szn-bar';
+          bar.style.height = Math.max(freq * 100, 14) + '%';
+          bar.style.background = GROUP_COLORS[speciesGroup[sp]];
+          bar.title = `${sp}: ${Math.round(freq * 100)}% of trips that week (${nHits}/${nTripsInBin})`;
+          td.appendChild(bar);
+        }
+      }
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+
+  const container = document.createElement('div');
+  container.appendChild(wrap);
+
+  const legend = el('div', 'szn-legend');
+  legend.innerHTML = `
+    <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Fish}"></span>Fish</span>
+    <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Mammal}"></span>Mammal</span>
+    <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Bird}"></span>Bird</span>
+    <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Other}"></span>Other</span>
+    <span><span class="szn-legend-nodata"></span>No trips run that week</span>
+    <span style="flex-basis:100%;">Bar height = share of trips run in that week (pooled across all years) that recorded the species.</span>
+  `;
+  container.appendChild(legend);
+  return container;
 }
 
 /* ============================== Charts ============================== */
