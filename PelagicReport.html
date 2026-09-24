@@ -584,19 +584,30 @@
 
 <div class="wrap">
 
-  <div class="card dropzone-card">
-    <div class="url-row" style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
-      <input type="text" id="sheetUrl" placeholder="Paste a published Google Sheet link (File → Share → Publish to web → CSV)"
-             value="https://docs.google.com/spreadsheets/d/e/2PACX-1vT1xZcTngxvf2DEJBVzg_zlHY7mHu7nsRyNbST2zmC8nCP0yNuOWEZuTutPozCW9M27HwcT6aQ50vVr/pub?gid=1566173971&single=true&output=csv"
-             style="flex:1; min-width:240px; padding:10px 12px; border:1px solid var(--line); border-radius:7px; font-size:14px; font-family:inherit;">
-      <button class="primary" id="loadUrlBtn">Load from link</button>
+   <div class="card dropzone-card">
+    <div style="margin-bottom:6px;">
+      <label for="sheetUrl" style="display:block; font-weight:700; color:var(--ocean); font-size:16px; margin-bottom:8px; font-family:'Fraunces', serif;">Load your season's data</label>
+      <div class="url-row" style="display:flex; gap:8px; flex-wrap:wrap;">
+        <input type="text" id="sheetUrl" placeholder="Paste a published Google Sheet link (File → Share → Publish to web → CSV)"
+               value="https://docs.google.com/spreadsheets/d/e/2PACX-1vT1xZcTngxvf2DEJBVzg_zlHY7mHu7nsRyNbST2zmC8nCP0yNuOWEZuTutPozCW9M27HwcT6aQ50vVr/pub?gid=1566173971&single=true&output=csv"
+               style="flex:1; min-width:240px; padding:12px 14px; border:2px solid var(--medblue); border-radius:7px; font-size:14px; font-family:inherit; background:var(--seafoam);">
+        <button class="primary" id="loadUrlBtn" style="padding:12px 24px; font-size:15px;">Load from link</button>
+      </div>
+      <div style="color:var(--gray); font-size:12.5px; margin-top:6px;">Paste a Google Sheet published as CSV (File → Share → Publish to web) and click Load.</div>
     </div>
-    <div style="text-align:center; color:var(--gray); font-size:13px; margin:-6px 0 16px;">— or —</div>
-    <div id="dropzone" class="dropzone">
-      <input type="file" id="fileInput" accept=".csv">
-      <div><strong>Click to choose a CSV</strong> or drag one here</div>
-      <div class="filename" id="filename">No file selected yet</div>
-    </div>
+
+    <div class="filename" id="filename" style="margin:14px 0 2px;">No file selected yet</div>
+
+    <details id="csvDetails" style="margin-top:6px;">
+      <summary style="cursor:pointer; color:var(--gray); font-size:13px; font-weight:600; padding:6px 0; list-style:none;">
+        ▸ Or upload a CSV file instead
+      </summary>
+      <div id="dropzone" class="dropzone" style="margin-top:10px;">
+        <input type="file" id="fileInput" accept=".csv">
+        <div><strong>Click to choose a CSV</strong> or drag one here</div>
+      </div>
+    </details>
+
     <div class="error-box" id="errorBox"></div>
     <div class="notice-box" id="noticeBox"></div>
   </div>
