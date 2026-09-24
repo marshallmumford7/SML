@@ -342,6 +342,7 @@
     height:100% !important;
   }
   .chart-wrap.short{height:300px;}
+  .chart-row{display:block;}
   /* ---------- Seasonality (Merlin/eBird-style bar chart) ---------- */
   .szn-scroll{overflow-x:auto; margin-top:6px; border:1px solid var(--line); border-radius:8px;}
   .szn-table{border-collapse:collapse; width:100%; min-width:760px;}
@@ -354,13 +355,14 @@
   .szn-month-row th:first-child{border-left:none;}
   .szn-corner{background:var(--ocean-deep) !important; position:sticky; left:0; z-index:3;}
   .szn-species-cell{
-    padding:3px 10px; white-space:nowrap; font-size:12.5px; text-align:left;
+    padding:4px 10px; white-space:nowrap; font-size:13.5px; text-align:left;
     background:#fff; position:sticky; left:0; z-index:2; border-right:1px solid var(--line);
+    border-bottom:3px solid #fff;
   }
   .szn-row:nth-child(even) .szn-species-cell, .szn-row:nth-child(even) .szn-cell{background:#F3F8FB;}
   .szn-cell{
-    position:relative; height:24px; min-width:11px;
-    border-left:1px solid #fff; vertical-align:bottom;
+    position:relative; height:30px; min-width:14px;
+    border-left:1px solid #fff; border-bottom:3px solid #fff; vertical-align:bottom;
   }
   .szn-bar{
     position:absolute; bottom:1px; left:1px; right:1px; border-radius:1px;
@@ -468,8 +470,25 @@
     table.report-table td{padding:3px 6px;}
     .metric-row td{padding:2px 6px;}
     .group-pill{font-size:9.5px; padding:1px 6px;}
-    .chart-wrap{height:220px; margin-top:2px;}
-    .chart-wrap.short{height:180px;}
+    .chart-wrap{height:auto; aspect-ratio:4/3; max-width:560px; margin-top:2px;}
+    .chart-wrap.short{aspect-ratio:16/10; max-width:480px;}
+    /* Let the two charts share a row when there's room, rather than always
+       forcing each to the full page width — that's what made them look
+       stretched. flex-grow is 0 so neither is stretched to fill leftover
+       space; each keeps its own natural aspect ratio (set above) at its
+       basis width, and they wrap to their own line if the page is too
+       narrow to fit both at once. */
+    .chart-row{
+      display:flex; flex-wrap:wrap; align-items:flex-start; gap:12px;
+    }
+    .chart-row .chart-card{
+      margin-bottom:12px; min-width:0;
+      page-break-inside:avoid; break-inside:avoid;
+    }
+    .chart-card-median{flex:0 1 380px;}
+    .chart-card-effort{flex:0 1 300px;}
+    .chart-row-single .chart-card{flex:1 1 100%;}
+    .chart-row .chart-wrap{max-width:none;}
     .trip-grid{gap:8px; margin-bottom:8px; grid-template-columns:repeat(3, 1fr);}
     .trip-card{padding:8px 10px; margin-bottom:8px; border-radius:5px;}
     .trip-card h3{font-size:11.5px; gap:4px;}
@@ -492,11 +511,12 @@
     .szn-table{min-width:0; width:100%; table-layout:fixed;}
     .szn-corner, .szn-species-cell{position:static;}
     .szn-species-cell{
-      padding:2px 5px; font-size:8px; white-space:normal; overflow-wrap:break-word;
+      padding:2px 6px; font-size:9px; white-space:normal; overflow-wrap:break-word;
+      border-bottom:2px solid #fff;
     }
-    .szn-species-cell .group-pill{padding:0 4px; font-size:7px; margin-right:3px;}
-    .szn-month-row th{font-size:8.5px; padding:3px 0;}
-    .szn-cell{height:16px;}
+    .szn-species-cell .group-pill{padding:0 4px; font-size:7.5px; margin-right:3px;}
+    .szn-month-row th{font-size:9px; padding:3px 0;}
+    .szn-cell{height:19px; border-bottom:2px solid #fff;}
     .szn-legend{font-size:9.5px; gap:10px;}
     .szn-legend-swatch, .szn-legend-nodata{width:10px; height:10px;}
   }
@@ -1052,26 +1072,43 @@ function renderReport(state, byYear, opts){
     report.appendChild(card);
   }
 
-  // ---- Median species count chart ----
-  if (opts.median){
-    const card = sectionCard('Median Species Count');
-    const chartWrap = el('div', 'chart-wrap');
-    const canvas = document.createElement('canvas');
-    chartWrap.appendChild(canvas);
-    card.appendChild(chartWrap);
-    report.appendChild(card);
-    buildMedianChart(canvas, reportState, byYear);
-  }
+  // ---- Median species count & Species per hour charts ----
+  // Grouped into a shared row so the print layout can place them side by
+  // side when there's room, instead of always stretching each chart to
+  // the full page width regardless of how much space its content needs.
+  if (opts.median || opts.effort){
+    const chartRow = el('div', 'chart-row');
+    // If only one of the two charts is included, let it use the full row
+    // width instead of sizing itself for a side-by-side layout it isn't
+    // actually sharing.
+    if (!(opts.median && opts.effort)) chartRow.classList.add('chart-row-single');
+    report.appendChild(chartRow);
 
-  // ---- Species per hour chart ----
-  if (opts.effort){
-    const card = sectionCard('Species per Hour');
-    const chartWrap = el('div', 'chart-wrap short');
-    const canvas = document.createElement('canvas');
-    chartWrap.appendChild(canvas);
-    card.appendChild(chartWrap);
-    report.appendChild(card);
-    buildEffortChart(canvas, reportState, byYear);
+    if (opts.median){
+      const card = el('div', 'card chart-card chart-card-median');
+      const st = el('div', 'section-title');
+      st.innerHTML = '<h2>Median Species Count</h2>';
+      card.appendChild(st);
+      const chartWrap = el('div', 'chart-wrap');
+      const canvas = document.createElement('canvas');
+      chartWrap.appendChild(canvas);
+      card.appendChild(chartWrap);
+      chartRow.appendChild(card);
+      buildMedianChart(canvas, reportState, byYear);
+    }
+
+    if (opts.effort){
+      const card = el('div', 'card chart-card chart-card-effort');
+      const st = el('div', 'section-title');
+      st.innerHTML = '<h2>Species per Hour</h2>';
+      card.appendChild(st);
+      const chartWrap = el('div', 'chart-wrap short');
+      const canvas = document.createElement('canvas');
+      chartWrap.appendChild(canvas);
+      card.appendChild(chartWrap);
+      chartRow.appendChild(card);
+      buildEffortChart(canvas, reportState, byYear);
+    }
   }
 
   // ---- Species totals ----
