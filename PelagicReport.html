@@ -343,6 +343,8 @@
   }
   .chart-wrap.short{height:300px;}
   .chart-row{display:block;}
+  .summary-row{display:block;}
+  .print-only-grid{display:none;}
   /* ---------- Seasonality (Merlin/eBird-style bar chart) ---------- */
   .szn-scroll{overflow-x:auto; margin-top:6px; border:1px solid var(--line); border-radius:8px;}
   .szn-table{border-collapse:collapse; width:100%; min-width:760px;}
@@ -489,6 +491,22 @@
     .chart-card-effort{flex:0 1 300px;}
     .chart-row-single .chart-card{flex:1 1 100%;}
     .chart-row .chart-wrap{max-width:none;}
+    /* Season Overview + Season/Trip Log: same side-by-side treatment as
+       the chart row, but tuned smaller since these are just a handful of
+       metric rows each and don't need anywhere near full page width. */
+    .summary-row{
+      display:flex; flex-wrap:wrap; align-items:flex-start; gap:12px;
+    }
+    .summary-row .summary-card{
+      flex:1 1 300px; min-width:0; margin-bottom:12px; padding:8px 12px;
+      page-break-inside:avoid; break-inside:avoid;
+    }
+    .summary-row-single .summary-card{flex:1 1 100%;}
+    .summary-card .section-title{margin-bottom:4px;}
+    .summary-card table.report-table{font-size:9px;}
+    .summary-card table.report-table th{padding:3px 5px;}
+    .summary-card table.report-table td{padding:2px 5px;}
+    .summary-card .metric-row td{padding:1px 5px;}
     .trip-grid{gap:8px; margin-bottom:8px; grid-template-columns:repeat(3, 1fr);}
     .trip-card{padding:8px 10px; margin-bottom:8px; border-radius:5px;}
     .trip-card h3{font-size:11.5px; gap:4px;}
@@ -506,19 +524,39 @@
     /* Seasonality grid: printing can't scroll horizontally, so the
        scrollable/min-width layout used on screen would silently clip the
        right-hand months. Switch to a layout that always fits the full
-       printable width instead. */
+       printable width instead. This is also shrunk much smaller than the
+       on-screen version specifically for print, since on paper it's a
+       reference graphic rather than something to read bar-by-bar. */
     .szn-scroll{overflow:visible; border:none;}
     .szn-table{min-width:0; width:100%; table-layout:fixed;}
     .szn-corner, .szn-species-cell{position:static;}
     .szn-species-cell{
-      padding:2px 6px; font-size:9px; white-space:normal; overflow-wrap:break-word;
-      border-bottom:2px solid #fff;
+      padding:0 3px; font-size:6px; white-space:normal; overflow-wrap:break-word;
+      border-bottom:1px solid #fff; line-height:1.15;
     }
-    .szn-species-cell .group-pill{padding:0 4px; font-size:7.5px; margin-right:3px;}
-    .szn-month-row th{font-size:9px; padding:3px 0;}
-    .szn-cell{height:19px; border-bottom:2px solid #fff;}
-    .szn-legend{font-size:9.5px; gap:10px;}
-    .szn-legend-swatch, .szn-legend-nodata{width:10px; height:10px;}
+    .szn-species-cell .group-pill{padding:0 3px; font-size:5.5px; margin-right:2px;}
+    .szn-month-row th{font-size:6.5px; padding:1.5px 0;}
+    .szn-cell{height:8px; border-bottom:1px solid #fff;}
+    .szn-legend{font-size:7px; gap:6px;}
+    .szn-legend-swatch, .szn-legend-nodata{width:7px; height:7px;}
+
+    /* Species Summary / Sightings by Trip: swap the single-column sortable
+       table (sorting isn't meaningful on a static printed page) for a
+       denser grid with two "Group · Species · Count" records per row. */
+    .sightings-block table.report-table{display:none;}
+    .print-only-grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:0 14px;
+    }
+    .sighting-chip{
+      display:flex; align-items:center; gap:5px;
+      font-size:9px; padding:2px 3px;
+      border-bottom:1px solid var(--line);
+      min-width:0;
+    }
+    .sighting-chip:nth-child(4n+1), .sighting-chip:nth-child(4n+2){background:#F3F8FB;}
+    .sighting-chip .group-pill{font-size:7.5px; padding:0 5px; flex:0 0 auto;}
+    .sighting-chip-species{flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+    .sighting-chip-count{font-weight:700; text-align:right; min-width:26px; flex:0 0 auto;}
   }
 </style>
 </head>
@@ -1009,58 +1047,68 @@ function renderReport(state, byYear, opts){
     heroSeasonInfo.textContent = `${fmtDate(seasonStart,{month:'long',day:'numeric'})} – ${fmtDate(seasonEnd,{month:'long',day:'numeric',year:'numeric'})} · Pelagic Trips Report`;
   }
 
-  // ---- Season overview ----
-  if (opts.overview){
-    const card = sectionCard('Season Overview');
-    const rows = [
-      ["Total Trips", String(totalTrips)],
-      ["Species Observed", String(nSpecies)],
-      ["Total Animals", commas(nAnimals)],
-      ["Date Range", `${fmtDate(seasonStart,{month:'short',day:'numeric'})} – ${fmtDate(seasonEnd,{month:'short',day:'numeric',year:'numeric'})}`]
-    ];
-    const table = document.createElement('table');
-    table.className = 'report-table';
-    table.innerHTML = '<tbody>' + rows.map(r => `<tr class="metric-row"><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join('') + '</tbody>';
-    card.appendChild(table);
-    report.appendChild(card);
-  }
+  // ---- Season overview + Season/Trip log ----
+  // Grouped into a shared row (same treatment as the chart row) so print
+  // can place these two compact summary cards side by side instead of
+  // each claiming the full page width for just a few rows of data.
+  if (opts.overview || opts.triplog){
+    const summaryRow = el('div', 'summary-row');
+    if (!(opts.overview && opts.triplog)) summaryRow.classList.add('summary-row-single');
+    report.appendChild(summaryRow);
 
-  // ---- Trip log ----
-  if (opts.triplog){
-    const card = sectionCard(byYear ? 'Season Log' : 'Trip Log');
-    let table;
-    if (byYear){
-      const years = [...new Set(trips.map(t=>t.year))].sort();
-      const yearRows = years.map(y => {
-        const yTrips = trips.filter(t=>t.year===y);
-        const ySightings = sightingsLong.filter(s=>s.year===y);
-        const nSp = new Set(ySightings.map(s=>s.species)).size;
-        const nAn = ySightings.reduce((a,s)=>a+s.count,0);
-        const dMin = new Date(Math.min(...yTrips.map(t=>t.date)));
-        const dMax = new Date(Math.max(...yTrips.map(t=>t.date)));
-        return {year:y, nTrips:yTrips.length, nSpecies:nSp, nAnimals:nAn, dMin, dMax};
-      });
-      const yearColumns = [
-        {key:'year', label:'Year', value:r=>r.year},
-        {key:'nTrips', label:'# Trips', numeric:true, value:r=>r.nTrips},
-        {key:'nSpecies', label:'# Species', numeric:true, value:r=>r.nSpecies},
-        {key:'nAnimals', label:'# Animals', numeric:true, value:r=>r.nAnimals},
-        {key:'dMin', label:'Date Range', value:r=>r.dMin.getTime()}
+    if (opts.overview){
+      const card = sectionCard('Season Overview', false);
+      card.classList.add('summary-card');
+      const rows = [
+        ["Total Trips", String(totalTrips)],
+        ["Species Observed", String(nSpecies)],
+        ["Total Animals", commas(nAnimals)],
+        ["Date Range", `${fmtDate(seasonStart,{month:'short',day:'numeric'})} – ${fmtDate(seasonEnd,{month:'short',day:'numeric',year:'numeric'})}`]
       ];
-      table = makeSortableTable(yearColumns, yearRows, r => `<tr><td>${r.year}</td><td class="num">${r.nTrips}</td><td class="num">${r.nSpecies}</td><td class="num">${commas(r.nAnimals)}</td><td>${fmtDate(r.dMin,{month:'short',day:'numeric'})} – ${fmtDate(r.dMax,{month:'short',day:'numeric'})}</td></tr>`);
-    } else {
-      const tripColumns = [
-        {key:'date', label:'Date', value:r=>r.date.getTime()},
-        {key:'time', label:'Start / End', value:r=>r.startTime||''},
-        {key:'tripType', label:'Trip Type', value:r=>r.tripType||''},
-        {key:'area', label:'Area', value:r=>r.area||''},
-        {key:'speciesCount', label:'# Species', numeric:true, value:r=>r.speciesCount||0},
-        {key:'totalAnimals', label:'# Animals', numeric:true, value:r=>r.totalAnimals||0}
-      ];
-      table = makeSortableTable(tripColumns, trips, t => `<tr><td>${fmtDate(t.date)}</td><td>${t.startTime||''} – ${t.endTime||''}</td><td>${t.tripType||''}</td><td>${t.area||''}</td><td class="num">${t.speciesCount||0}</td><td class="num">${commas(t.totalAnimals||0)}</td></tr>`);
+      const table = document.createElement('table');
+      table.className = 'report-table';
+      table.innerHTML = '<tbody>' + rows.map(r => `<tr class="metric-row"><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join('') + '</tbody>';
+      card.appendChild(table);
+      summaryRow.appendChild(card);
     }
-    card.appendChild(table);
-    report.appendChild(card);
+
+    if (opts.triplog){
+      const card = sectionCard(byYear ? 'Season Log' : 'Trip Log', false);
+      card.classList.add('summary-card');
+      let table;
+      if (byYear){
+        const years = [...new Set(trips.map(t=>t.year))].sort();
+        const yearRows = years.map(y => {
+          const yTrips = trips.filter(t=>t.year===y);
+          const ySightings = sightingsLong.filter(s=>s.year===y);
+          const nSp = new Set(ySightings.map(s=>s.species)).size;
+          const nAn = ySightings.reduce((a,s)=>a+s.count,0);
+          const dMin = new Date(Math.min(...yTrips.map(t=>t.date)));
+          const dMax = new Date(Math.max(...yTrips.map(t=>t.date)));
+          return {year:y, nTrips:yTrips.length, nSpecies:nSp, nAnimals:nAn, dMin, dMax};
+        });
+        const yearColumns = [
+          {key:'year', label:'Year', value:r=>r.year},
+          {key:'nTrips', label:'# Trips', numeric:true, value:r=>r.nTrips},
+          {key:'nSpecies', label:'# Species', numeric:true, value:r=>r.nSpecies},
+          {key:'nAnimals', label:'# Animals', numeric:true, value:r=>r.nAnimals},
+          {key:'dMin', label:'Date Range', value:r=>r.dMin.getTime()}
+        ];
+        table = makeSortableTable(yearColumns, yearRows, r => `<tr><td>${r.year}</td><td class="num">${r.nTrips}</td><td class="num">${r.nSpecies}</td><td class="num">${commas(r.nAnimals)}</td><td>${fmtDate(r.dMin,{month:'short',day:'numeric'})} – ${fmtDate(r.dMax,{month:'short',day:'numeric'})}</td></tr>`);
+      } else {
+        const tripColumns = [
+          {key:'date', label:'Date', value:r=>r.date.getTime()},
+          {key:'time', label:'Start / End', value:r=>r.startTime||''},
+          {key:'tripType', label:'Trip Type', value:r=>r.tripType||''},
+          {key:'area', label:'Area', value:r=>r.area||''},
+          {key:'speciesCount', label:'# Species', numeric:true, value:r=>r.speciesCount||0},
+          {key:'totalAnimals', label:'# Animals', numeric:true, value:r=>r.totalAnimals||0}
+        ];
+        table = makeSortableTable(tripColumns, trips, t => `<tr><td>${fmtDate(t.date)}</td><td>${t.startTime||''} – ${t.endTime||''}</td><td>${t.tripType||''}</td><td>${t.area||''}</td><td class="num">${t.speciesCount||0}</td><td class="num">${commas(t.totalAnimals||0)}</td></tr>`);
+      }
+      card.appendChild(table);
+      summaryRow.appendChild(card);
+    }
   }
 
   // ---- Seasonality (Merlin/eBird-style bar chart) ----
@@ -1139,7 +1187,13 @@ function renderReport(state, byYear, opts){
       {key:'pct', label:'% of Trips', numeric:true, value:r=>r.pct}
     ];
     const table = makeSortableTable(totalsColumns, list, r => `<tr><td><span class="group-pill ${pillClass(r.group)}">${r.group}</span></td><td>${r.species}</td><td class="num">${commas(r.total)}</td><td class="num">${r.trips}</td><td class="num">${r.pct.toFixed(1)}%</td></tr>`);
-    card.appendChild(table);
+    // Print shows the same list as a denser two-per-row grid (Group ·
+    // Species · Total Count) rather than this full 5-column sortable
+    // table, which is mostly whitespace once it's on paper.
+    const wrap = el('div', 'sightings-block');
+    wrap.appendChild(table);
+    wrap.appendChild(sightingChipGrid(list, r=>r.total));
+    card.appendChild(wrap);
     report.appendChild(card);
   }
 
@@ -1251,7 +1305,7 @@ function aggregateSightings(sightings){
   });
 }
 
-function sightingsTable(list){
+function sightingsTable(list, printGrid){
   if (list.length === 0){
     const p = el('p', 'empty-note');
     p.textContent = 'No sightings recorded.';
@@ -1262,7 +1316,29 @@ function sightingsTable(list){
     {key:'species', label:'Species', value:r=>r.species},
     {key:'count', label:'Count', numeric:true, value:r=>r.count}
   ];
-  return makeSortableTable(columns, list, r => `<tr><td><span class="group-pill ${pillClass(r.group)}">${r.group}</span></td><td>${r.species}</td><td class="num">${commas(r.count)}</td></tr>`);
+  const table = makeSortableTable(columns, list, r => `<tr><td><span class="group-pill ${pillClass(r.group)}">${r.group}</span></td><td>${r.species}</td><td class="num">${commas(r.count)}</td></tr>`);
+  if (printGrid === false) return table;
+  // Print swaps this sortable table for a denser, two-records-per-row grid
+  // (see .sightings-block / .print-only-grid in print CSS) since sorting
+  // isn't meaningful on a static page and a single "Group · Species ·
+  // Count" per row wastes most of the printed line's width.
+  const wrap = el('div', 'sightings-block');
+  wrap.appendChild(table);
+  wrap.appendChild(sightingChipGrid(list, r=>r.count));
+  return wrap;
+}
+
+// A compact "Group · Species · Count" chip, used two-per-row by the
+// print-only grid so the same list takes roughly half the vertical space
+// it would as a single-column table.
+function sightingChipGrid(list, countFn){
+  const grid = el('div', 'print-only-grid');
+  list.forEach(r => {
+    const item = el('div', 'sighting-chip');
+    item.innerHTML = `<span class="group-pill ${pillClass(r.group)}">${r.group}</span><span class="sighting-chip-species">${r.species}</span><span class="sighting-chip-count">${commas(countFn(r))}</span>`;
+    grid.appendChild(item);
+  });
+  return grid;
 }
 
 function tripCard(t, sightings){
@@ -1274,16 +1350,16 @@ function tripCard(t, sightings){
   meta.innerHTML = `<b>Time:</b> ${t.startTime||'—'} – ${t.endTime||'—'} &nbsp;·&nbsp; <b>Type:</b> ${t.tripType||'—'} &nbsp;·&nbsp; <b>Sea State:</b> ${t.seaState||'—'} &nbsp;·&nbsp; <b>Visibility:</b> ${t.visibility||'—'}<br><b>Observers:</b> ${t.observers||'—'}`;
   wrap.appendChild(meta);
   const grouped = aggregateSightings(sightings);
-  wrap.appendChild(sightingsTable(grouped));
+  wrap.appendChild(sightingsTable(grouped, false));
   return wrap;
 }
 
-function sectionCard(title){
+function sectionCard(title, attach){
   const card = el('div', 'card');
   const st = el('div', 'section-title');
   st.innerHTML = `<h2>${title}</h2>`;
   card.appendChild(st);
-  document.getElementById('report').appendChild(card);
+  if (attach !== false) document.getElementById('report').appendChild(card);
   return card;
 }
 
