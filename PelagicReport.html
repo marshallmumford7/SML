@@ -144,7 +144,8 @@
     .chart-wrap{page-break-inside:avoid; break-inside:avoid;}
     table.report-table tr{page-break-inside:avoid; break-inside:avoid;}
     table.report-table thead{display:table-header-group;}
-    .szn-row{page-break-inside:avoid; break-inside:avoid;}
+    .szn-item{page-break-inside:avoid; break-inside:avoid;}
+    .szn-group-head{page-break-after:avoid; break-after:avoid;}
     .sort-arrow{display:none !important;}
     th.sortable{cursor:default !important;}
     .hero{background:none !important; color:var(--ink) !important; padding:16px 0 !important;}
@@ -355,48 +356,47 @@
   .chart-row{display:block;}
   .summary-row{display:block;}
   .print-only-grid{display:none;}
-  /* ---------- Seasonality (Merlin/eBird-style bar chart) ---------- */
-  .szn-scroll{overflow-x:auto; margin-top:6px; border:1px solid var(--line); border-radius:8px;}
-  .szn-table{border-collapse:collapse; width:100%; min-width:760px;}
-  .szn-table td, .szn-table th{padding:0; border:none;}
-  .szn-month-row th{
-    font-size:11px; font-weight:700; color:#fff; background:var(--ocean);
-    text-align:center; padding:5px 0; letter-spacing:0.02em;
-    border-left:1px solid rgba(255,255,255,0.35);
+  /* ---------- Seasonality (Merlin-style species rows) ---------- */
+  .szn-list{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr));
+    column-gap:32px; margin-top:4px;
   }
-  .szn-month-row th:first-child{border-left:none;}
-  .szn-corner{background:var(--ocean-deep) !important; position:sticky; left:0; z-index:3;}
-  .szn-species-cell{
-    padding:4px 10px; white-space:nowrap; font-size:13.5px; text-align:left;
-    background:#fff; position:sticky; left:0; z-index:2; border-right:1px solid var(--line);
-    border-bottom:1px solid #F3F5F6;
+  .szn-group-head{
+    grid-column:1 / -1;
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin:18px 0 2px; padding:6px 10px;
+    background:#EDF1F3; border-left:4px solid var(--szn-accent, var(--ocean));
+    font-family:'Source Sans 3', sans-serif; font-weight:700; font-size:13px;
+    letter-spacing:0.05em; text-transform:uppercase; color:var(--ink);
   }
-  .szn-row:nth-child(even) .szn-species-cell, .szn-row:nth-child(even) .szn-cell{background:#F3F8FB;}
-  .szn-cell{
-    position:relative; height:34px; min-width:14px;
-    vertical-align:middle;
+  .szn-group-head:first-child{margin-top:0;}
+  .szn-group-count{font-weight:500; letter-spacing:0; text-transform:none; color:var(--gray); font-size:12.5px;}
+  .szn-item{padding:11px 2px 10px; border-bottom:1px solid #E4EAED;}
+  .szn-name{font-family:'Source Sans 3', sans-serif; font-size:17px; font-weight:600; color:var(--ink); line-height:1.2;}
+  .szn-meta{font-size:13px; font-style:italic; color:var(--gray); margin-top:1px;}
+  .szn-chart{position:relative; margin-top:8px;}
+  .szn-strip{
+    display:grid; grid-template-columns:repeat(var(--szn-bins, 16), 1fr);
+    column-gap:3px; height:22px;
   }
-  .szn-track{
-    position:absolute; left:0; right:0; top:50%; height:4px;
-    transform:translateY(-50%);
-    background:#E7ECEF;
+  .szn-wk{display:flex; align-items:center;}
+  .szn-bar{width:100%; background:#8E9AA1; border-radius:1px;}
+  .szn-wk.is-absent .szn-bar{height:2px; background:#D9DFE2;}
+  .szn-wk.is-nodata .szn-bar, .szn-legend-nodata{
+    background-image:repeating-linear-gradient(45deg, #D3D9DC, #D3D9DC 1.5px, #F4F6F7 1.5px, #F4F6F7 3.5px);
   }
-  .szn-bar{
-    position:absolute; left:0; right:0; top:50%;
-    transform:translateY(-50%);
+  .szn-wk.is-nodata .szn-bar{height:6px; background-color:transparent;}
+  .szn-today{position:absolute; top:-4px; height:30px; width:2px; margin-left:-1px; background:var(--ink); border-radius:1px;}
+  .szn-months{
+    display:grid; grid-template-columns:repeat(var(--szn-months, 4), 1fr);
+    margin-top:4px; font-size:10.5px; color:#8C979C; letter-spacing:0.04em;
   }
-  .szn-nodata{
-    position:absolute; left:0; right:0; top:50%; height:4px;
-    transform:translateY(-50%);
-    background-image:repeating-linear-gradient(45deg, #E2E6E9, #E2E6E9 2px, #F4F6F7 2px, #F4F6F7 4px);
-  }
-  .szn-legend{display:flex; flex-wrap:wrap; gap:16px; align-items:center; font-size:12.5px; color:var(--gray); margin-top:10px;}
-  .szn-legend-swatch{display:inline-block; width:14px; height:14px; border-radius:2px; vertical-align:-2px; margin-right:5px;}
-  .szn-legend-nodata{
-    display:inline-block; width:14px; height:14px; border-radius:2px; vertical-align:-2px; margin-right:5px;
-    background-image:repeating-linear-gradient(45deg, #E2E6E9, #E2E6E9 2px, #F4F6F7 2px, #F4F6F7 4px);
-    border:1px solid var(--line);
-  }
+  .szn-months span{text-align:center;}
+  .szn-legend{display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; font-size:12.5px; color:var(--gray); margin-top:14px;}
+  .szn-legend-bars{display:inline-flex; align-items:center; gap:2px; height:14px; margin-right:6px; vertical-align:-2px;}
+  .szn-legend-bars i{display:block; width:5px; background:#8E9AA1; border-radius:1px;}
+  .szn-legend-nodata{display:inline-block; width:16px; height:6px; margin-right:6px; vertical-align:1px;}
+  .szn-legend-today{display:inline-block; width:2px; height:14px; background:var(--ink); margin-right:6px; vertical-align:-2px;}
   .year-block{margin-bottom:34px;}
   .year-header{
     display:inline-block;
@@ -543,18 +543,22 @@
        printable width instead. This is also shrunk much smaller than the
        on-screen version specifically for print, since on paper it's a
        reference graphic rather than something to read bar-by-bar. */
-    .szn-scroll{overflow:visible; border:none;}
-    .szn-table{min-width:0; width:100%; table-layout:fixed;}
-    .szn-corner, .szn-species-cell{position:static;}
-    .szn-species-cell{
-      padding:0 3px; font-size:6px; white-space:normal; overflow-wrap:break-word;
-      border-bottom:1px solid #fff; line-height:1.15;
-    }
-    .szn-species-cell .group-pill{padding:0 3px; font-size:5.5px; margin-right:2px;}
-    .szn-month-row th{font-size:6.5px; padding:1.5px 0;}
-    .szn-cell{height:8px; border-bottom:1px solid #fff;}
-    .szn-legend{font-size:7px; gap:6px;}
-    .szn-legend-swatch, .szn-legend-nodata{width:7px; height:7px;}
+    .szn-list{grid-template-columns:repeat(4, 1fr); column-gap:12px;}
+    .szn-group-head{margin:6px 0 1px; padding:2px 6px; font-size:7.5px; border-left-width:3px;}
+    .szn-group-count{font-size:7px;}
+    .szn-item{padding:3px 0 3px;}
+    .szn-name{font-size:8px;}
+    .szn-meta{font-size:6.5px; margin-top:0;}
+    .szn-chart{margin-top:2px;}
+    .szn-strip{height:9px; column-gap:1px;}
+    .szn-wk.is-absent .szn-bar{height:1px;}
+    .szn-wk.is-nodata .szn-bar{height:3px;}
+    .szn-today{top:-1px; height:11px; width:1px;}
+    .szn-months{font-size:5.5px; margin-top:1px;}
+    .szn-legend{font-size:7px; gap:4px 10px; margin-top:6px;}
+    .szn-legend-bars{height:7px;}
+    .szn-legend-bars i{width:3px;}
+    .szn-legend-today{height:7px; width:1px;}
 
     /* Species Summary / Sightings by Trip: swap the single-column sortable
        table (sorting isn't meaningful on a static printed page) for a
@@ -1498,18 +1502,22 @@ function el(tag, cls){
   return e;
 }
 
-/* ============================== Seasonality (Merlin/eBird-style bar chart) ============================== */
-// Renders a species x week grid (4 bins per month, 48 total), pooling
-// sightings across every year in the dataset. Band thickness = the share
-// of trips run in that week-of-year that recorded the species; a hatched
-// cell means no trips were run in that window at all (like Merlin/eBird's
-// "insufficient data" hatching), rather than the species being absent.
+/* ============================== Seasonality (Merlin-style species rows) ============================== */
+// One row per species, grouped under a header per group, laid out like the
+// species list in Merlin: name, a short summary line, then a strip of weekly
+// bars (4 per month, May–Aug) with month initials underneath. Sightings are
+// pooled across every year in the dataset. Bar height = the share of trips
+// run in that week-of-year that recorded the species. A thin grey line means
+// trips ran but the species wasn't seen; a hatched stub means no trips were
+// run that week at all. When today falls inside the window, a dark marker
+// shows where we are in the season, as Merlin does.
 function buildSeasonalityChart(sightingsLong, trips){
   const MONTHS = ['May','Jun','Jul','Aug'];
   const FIRST_MONTH = 4; // May (0-indexed); chart covers May through end of August
   const BINS_PER_MONTH = 4;
   const N_MONTHS = MONTHS.length;
   const BINS = N_MONTHS * BINS_PER_MONTH;
+  const GROUP_HEADINGS = {Fish:'Fish', Mammal:'Marine mammals', Bird:'Birds', Other:'Other'};
 
   function binOf(date){
     const m = date.getMonth() - FIRST_MONTH;
@@ -1523,6 +1531,7 @@ function buildSeasonalityChart(sightingsLong, trips){
   // simply not counted, since the chart only covers that window.
   const effort = new Array(BINS).fill(0);
   trips.forEach(t => { const b = binOf(t.date); if (b >= 0 && b < BINS) effort[b]++; });
+  const totalTrips = effort.reduce((a, n) => a + n, 0);
 
   const speciesGroup = {};
   sightingsLong.forEach(s => { speciesGroup[s.species] = s.group; });
@@ -1536,100 +1545,91 @@ function buildSeasonalityChart(sightingsLong, trips){
     if (b >= 0 && b < BINS) occ[s.species][b].add(s.dateCol);
   });
 
-  const sortedSpecies = [...speciesList].sort((a, b) => {
-    const go = GROUP_ORDER.indexOf(speciesGroup[a]) - GROUP_ORDER.indexOf(speciesGroup[b]);
-    return go !== 0 ? go : a.localeCompare(b);
-  });
+  // Where "today" sits on the strip (0–1), or null if outside May–Aug.
+  const now = new Date();
+  let todayFrac = null;
+  const tm = now.getMonth() - FIRST_MONTH;
+  if (tm >= 0 && tm < N_MONTHS){
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    todayFrac = (tm + (now.getDate() - 0.5) / daysInMonth) / N_MONTHS;
+  }
 
-  const wrap = el('div', 'szn-scroll');
-  const table = document.createElement('table');
-  table.className = 'szn-table';
+  const list = el('div', 'szn-list');
+  list.style.setProperty('--szn-bins', BINS);
+  list.style.setProperty('--szn-months', N_MONTHS);
 
-  const thead = document.createElement('thead');
-  const monthRow = document.createElement('tr');
-  monthRow.className = 'szn-month-row';
-  const corner = document.createElement('th');
-  corner.className = 'szn-corner';
-  monthRow.appendChild(corner);
-  MONTHS.forEach(m => {
-    const th = document.createElement('th');
-    th.colSpan = BINS_PER_MONTH;
-    th.textContent = m;
-    monthRow.appendChild(th);
-  });
-  thead.appendChild(monthRow);
-  table.appendChild(thead);
+  GROUP_ORDER.forEach(group => {
+    const members = speciesList.filter(sp => speciesGroup[sp] === group).sort((a, b) => a.localeCompare(b));
+    if (!members.length) return;
 
-  const tbody = document.createElement('tbody');
-  sortedSpecies.forEach(sp => {
-    const tr = document.createElement('tr');
-    tr.className = 'szn-row';
-    const nameCell = document.createElement('td');
-    nameCell.className = 'szn-species-cell';
-    nameCell.innerHTML = `<span class="group-pill ${pillClass(speciesGroup[sp])}" style="padding:1px 6px; font-size:9.5px; margin-right:6px;">${speciesGroup[sp][0]}</span>${sp}`;
-    tr.appendChild(nameCell);
+    const head = el('div', 'szn-group-head');
+    head.style.setProperty('--szn-accent', GROUP_COLORS[group]);
+    head.innerHTML = `<span>${GROUP_HEADINGS[group] || group}</span><span class="szn-group-count">${members.length} species</span>`;
+    list.appendChild(head);
 
-    for (let b = 0; b < BINS; b++){
-      const td = document.createElement('td');
-      td.className = 'szn-cell';
-      const nTripsInBin = effort[b];
-      if (nTripsInBin === 0){
-        const nodata = document.createElement('div');
-        nodata.className = 'szn-nodata';
-        td.appendChild(nodata);
-      } else {
-        // Always draw the faint baseline track so weeks blend into one
-        // continuous strip even where the species wasn't recorded.
-        const track = document.createElement('div');
-        track.className = 'szn-track';
-        td.appendChild(track);
+    members.forEach(sp => {
+      const item = el('div', 'szn-item');
 
-        const nHits = occ[sp][b].size;
-        if (nHits > 0){
-          const freq = nHits / nTripsInBin;
-          const TRACK_PX = 4, MAX_BAR_PX = 24;
-          const heightPx = TRACK_PX + freq * (MAX_BAR_PX - TRACK_PX);
+      const tripsSeen = new Set();
+      occ[sp].forEach(set => set.forEach(d => tripsSeen.add(d)));
 
-          const bar = document.createElement('div');
-          bar.className = 'szn-bar';
-          bar.style.height = heightPx + 'px';
-          bar.style.background = GROUP_COLORS[speciesGroup[sp]];
-          bar.title = `${sp}: ${Math.round(freq * 100)}% of trips that week (${nHits}/${nTripsInBin})`;
+      const name = el('div', 'szn-name');
+      name.textContent = sp;
+      const meta = el('div', 'szn-meta');
+      meta.textContent = `Seen on ${tripsSeen.size} of ${totalTrips} trip${totalTrips === 1 ? '' : 's'}`;
+      item.appendChild(name);
+      item.appendChild(meta);
 
-          // Round only the outward-facing edge(s) of a contiguous run of
-          // presence weeks, so a solid stretch reads as one pill-shaped
-          // band rather than 48 individually-rounded segments. A week
-          // counts as "connected" only if trips were run AND the species
-          // was seen there — a no-sighting week or a no-trips week both
-          // break the run, matching where the colored bar visually stops.
-          const hasBarAt = (i) => i >= 0 && i < BINS && effort[i] > 0 && occ[sp][i].size > 0;
-          const roundLeft = !hasBarAt(b - 1);
-          const roundRight = !hasBarAt(b + 1);
-          const r = heightPx / 2; // radius = half the bar's own thickness = true semicircular cap
-          bar.style.borderRadius =
-            `${roundLeft ? r : 0}px ${roundRight ? r : 0}px ${roundRight ? r : 0}px ${roundLeft ? r : 0}px`;
-
-          td.appendChild(bar);
+      const chart = el('div', 'szn-chart');
+      const strip = el('div', 'szn-strip');
+      for (let b = 0; b < BINS; b++){
+        const wk = el('div', 'szn-wk');
+        const bar = el('div', 'szn-bar');
+        const nTripsInBin = effort[b];
+        const monthLabel = MONTHS[Math.floor(b / BINS_PER_MONTH)];
+        const weekLabel = `${monthLabel}, week ${(b % BINS_PER_MONTH) + 1}`;
+        if (nTripsInBin === 0){
+          wk.classList.add('is-nodata');
+          wk.title = `${weekLabel}: no trips run`;
+        } else {
+          const nHits = occ[sp][b].size;
+          if (nHits === 0){
+            wk.classList.add('is-absent');
+          } else {
+            const freq = nHits / nTripsInBin;
+            bar.style.height = (18 + freq * 82) + '%';
+          }
+          wk.title = `${weekLabel}: ${Math.round(nHits / nTripsInBin * 100)}% of trips (${nHits}/${nTripsInBin})`;
         }
+        wk.appendChild(bar);
+        strip.appendChild(wk);
       }
-      tr.appendChild(td);
-    }
-    tbody.appendChild(tr);
+      chart.appendChild(strip);
+
+      if (todayFrac !== null){
+        const today = el('div', 'szn-today');
+        today.style.left = (todayFrac * 100) + '%';
+        today.title = 'Today';
+        chart.appendChild(today);
+      }
+      item.appendChild(chart);
+
+      const months = el('div', 'szn-months');
+      months.innerHTML = MONTHS.map(m => `<span title="${m}">${m[0]}</span>`).join('');
+      item.appendChild(months);
+
+      list.appendChild(item);
+    });
   });
-  table.appendChild(tbody);
-  wrap.appendChild(table);
 
   const container = document.createElement('div');
-  container.appendChild(wrap);
+  container.appendChild(list);
 
   const legend = el('div', 'szn-legend');
   legend.innerHTML = `
-    <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Fish}"></span>Fish</span>
-    <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Mammal}"></span>Mammal</span>
-    <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Bird}"></span>Bird</span>
-    <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Other}"></span>Other</span>
+    <span><span class="szn-legend-bars"><i style="height:30%"></i><i style="height:60%"></i><i style="height:100%"></i></span>Taller bar = seen on more of that week's trips (all years pooled)</span>
     <span><span class="szn-legend-nodata"></span>No trips run that week</span>
-    <span style="flex-basis:100%;">Band thickness = share of trips run in that week (pooled across all years) that recorded the species.</span>
+    ${todayFrac !== null ? '<span><span class="szn-legend-today"></span>Today</span>' : ''}
   `;
   container.appendChild(legend);
   return container;
