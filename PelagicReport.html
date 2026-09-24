@@ -646,8 +646,15 @@ function parseDateHeader(h){
   const s = String(h).trim();
   if (!s) return null;
 
-  // M/D/YYYY, M-D-YYYY, M.D.YYYY (2- or 4-digit year)
-  let m = s.match(/^(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})$/);
+  // M/D/YYYY, M-D-YYYY, M.D.YYYY (2- or 4-digit year). Google's own CSV
+  // export ("File → Download → CSV") always shows a clean date like this,
+  // but the /gviz/tq?tqx=out:csv endpoint used by "Load from link" instead
+  // serializes each cell by its underlying data type — if a date column's
+  // cells are technically "date+time" values (common even when the sheet
+  // only *displays* a date, e.g. after a paste or a formula), gviz appends
+  // a time-of-day like "5/27/2026 0:00:00" that the old, stricter version
+  // of this regex rejected outright, silently dropping that whole trip.
+  let m = s.match(/^(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})(?:\s+\d{1,2}:\d{2}(?::\d{2})?\s*(?:[AaPp][Mm])?)?$/);
   if (m){
     let [, mo, d, y] = m;
     y = y.length === 2 ? "20" + y : y;
@@ -694,6 +701,16 @@ function parseDateHeader(h){
       const dt = new Date(utc);
       if (!isNaN(dt)) return new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
     }
+  }
+
+  // Defensive: the gviz endpoint's native JSON format represents dates as
+  // a "Date(Y,M,D)" constructor call; if that ever leaks into the CSV path
+  // instead of a formatted string, parse it directly rather than dropping
+  // the column.
+  m = s.match(/^Date\((\d+),(\d+),(\d+)\)$/);
+  if (m){
+    const dt = new Date(parseInt(m[1]), parseInt(m[2]), parseInt(m[3]));
+    if (!isNaN(dt)) return dt;
   }
 
   return null;
@@ -907,24 +924,48 @@ loadUrlBtn.addEventListener('click', () => {
 
   const sheetId = idMatch[1];
   const gid = gidMatch ? gidMatch[1] : "0";
+  // Deliberately NOT using the /gviz/tq?tqx=out:csv endpoint as the primary
+  // source: that's the Google Charts "Visualization API" data source, which
+  // infers one data type per COLUMN across the whole sheet and silently
+  // nulls out any cell that doesn't match it. Every date column in this
+  // sheet is mostly numeric species counts with a handful of genuinely-text
+  // meta rows (Type of trip, Area Visited, Observers, ...), so gviz was
+  // inferring those columns as numeric and discarding the text rows as
+  // empty before the response ever reached us — no amount of parsing here
+  // could recover that, since Google's server had already dropped it. The
+  // plain "download as CSV" export endpoint has no such type inference: it
+  // returns each cell's literal display text exactly like File → Download
+  // → CSV does, which is why that manual path always worked correctly.
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+  // Kept only as a fallback in case a given sheet's sharing setup responds
+  // to one endpoint but not the other; gviz's per-column type inference
+  // means text fields can still come through blank when this path is used.
   const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
 
   filenameEl.textContent = "Fetching sheet…";
   loadUrlBtn.disabled = true;
 
-  fetch(gvizUrl)
-    .then(resp => {
+  function fetchCsv(url){
+    return fetch(url).then(resp => {
       if (!resp.ok) throw new Error("Server returned " + resp.status + " — make sure the sheet is shared as 'Anyone with the link can view'.");
       return resp.text();
-    })
-    .then(text => {
+    }).then(text => {
       if (/^\s*<(!DOCTYPE|html)/i.test(text)) {
         throw new Error("That link returned a web page, not CSV data — check sharing settings.");
       }
-      parseGrid(text, "linked sheet");
-    })
+      return text;
+    });
+  }
+
+  fetchCsv(csvUrl)
+    .catch(() => fetchCsv(gvizUrl))
+    .then(text => parseGrid(text, "linked sheet"))
     .catch(err => {
-      showError("Couldn't load that sheet (" + err.message + ").");
+      const isNetworkErr = /failed to fetch/i.test(err.message);
+      const msg = isNetworkErr
+        ? "Couldn't reach that sheet — this is usually a sharing-permissions or CORS issue, not something wrong with the data itself. Make sure it's shared as \"Anyone with the link can view,\" or use File → Download → Comma-separated values (.csv) and upload the file below instead."
+        : "Couldn't load that sheet (" + err.message + ").";
+      showError(msg);
       filenameEl.textContent = "No file selected yet";
     })
     .finally(() => { loadUrlBtn.disabled = false; });
@@ -990,7 +1031,11 @@ function processData(rows, fields){
     const species = norm(r[labelCol]);
     dateCols.forEach(dc => {
       const raw = r[dc];
-      const count = parseInt(raw, 10);
+      // gviz's CSV export formats Number-typed cells with thousands
+      // separators (e.g. "1,234") where a plain CSV download would just
+      // show "1234"; strip them so a big count doesn't silently truncate
+      // at the comma (parseInt("1,234", 10) would otherwise read as 1).
+      const count = parseInt(String(raw).replace(/,/g, ''), 10);
       if (!isNaN(count) && count > 0){
         const t = tripByCol[dc];
         sightingsLong.push({
