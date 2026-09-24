@@ -366,23 +366,30 @@
   }
   .szn-month-row th:first-child{border-left:none;}
   .szn-corner{background:var(--ocean-deep) !important; position:sticky; left:0; z-index:3;}
-  .szn-species-cell{
-    padding:4px 10px; white-space:nowrap; font-size:13.5px; text-align:left;
-    background:#fff; position:sticky; left:0; z-index:2; border-right:1px solid var(--line);
-    border-bottom:3px solid #fff;
-  }
   .szn-row:nth-child(even) .szn-species-cell, .szn-row:nth-child(even) .szn-cell{background:#F3F8FB;}
   .szn-cell{
-    position:relative; height:30px; min-width:14px;
-    border-left:1px solid #fff; border-bottom:3px solid #fff; vertical-align:bottom;
-  }
-  .szn-bar{
-    position:absolute; bottom:1px; left:1px; right:1px; border-radius:1px;
-  }
-  .szn-nodata{
-    position:absolute; inset:1px;
-    background-image:repeating-linear-gradient(45deg, #E2E6E9, #E2E6E9 2px, #F4F6F7 2px, #F4F6F7 4px);
-  }
+  position:relative; height:34px; min-width:14px;
+  vertical-align:middle;
+}
+.szn-track{
+  position:absolute; left:0; right:0; top:50%; height:4px;
+  transform:translateY(-50%);
+  background:#E7ECEF;
+}
+.szn-bar{
+  position:absolute; left:0; right:0; top:50%;
+  transform:translateY(-50%); border-radius:2px;
+}
+.szn-nodata{
+  position:absolute; left:0; right:0; top:50%; height:4px;
+  transform:translateY(-50%);
+  background-image:repeating-linear-gradient(45deg, #E2E6E9, #E2E6E9 2px, #F4F6F7 2px, #F4F6F7 4px);
+}
+.szn-species-cell{
+  padding:4px 10px; white-space:nowrap; font-size:13.5px; text-align:left;
+  background:#fff; position:sticky; left:0; z-index:2; border-right:1px solid var(--line);
+  border-bottom:1px solid #F3F5F6;
+}
   .szn-legend{display:flex; flex-wrap:wrap; gap:16px; align-items:center; font-size:12.5px; color:var(--gray); margin-top:10px;}
   .szn-legend-swatch{display:inline-block; width:14px; height:14px; border-radius:2px; vertical-align:-2px; margin-right:5px;}
   .szn-legend-nodata{
@@ -1563,29 +1570,34 @@ function buildSeasonalityChart(sightingsLong, trips){
     tr.appendChild(nameCell);
 
     for (let b = 0; b < BINS; b++){
-      const td = document.createElement('td');
-      td.className = 'szn-cell';
-      const nTripsInBin = effort[b];
-      if (nTripsInBin === 0){
-        const nodata = document.createElement('div');
-        nodata.className = 'szn-nodata';
-        td.appendChild(nodata);
-      } else {
-        const nHits = occ[sp][b].size;
-        if (nHits > 0){
-          const freq = nHits / nTripsInBin;
-          const bar = document.createElement('div');
-          bar.className = 'szn-bar';
-          bar.style.height = Math.max(freq * 100, 14) + '%';
-          bar.style.background = GROUP_COLORS[speciesGroup[sp]];
-          bar.title = `${sp}: ${Math.round(freq * 100)}% of trips that week (${nHits}/${nTripsInBin})`;
-          td.appendChild(bar);
-        }
-      }
-      tr.appendChild(td);
+  const td = document.createElement('td');
+  td.className = 'szn-cell';
+  const nTripsInBin = effort[b];
+  if (nTripsInBin === 0){
+    const nodata = document.createElement('div');
+    nodata.className = 'szn-nodata';
+    td.appendChild(nodata);
+  } else {
+    // Always draw the faint baseline track so weeks blend into one
+    // continuous strip even where the species wasn't recorded.
+    const track = document.createElement('div');
+    track.className = 'szn-track';
+    td.appendChild(track);
+
+    const nHits = occ[sp][b].size;
+    if (nHits > 0){
+      const freq = nHits / nTripsInBin;
+      const TRACK_PX = 4, MAX_BAR_PX = 24;
+      const bar = document.createElement('div');
+      bar.className = 'szn-bar';
+      bar.style.height = (TRACK_PX + freq * (MAX_BAR_PX - TRACK_PX)) + 'px';
+      bar.style.background = GROUP_COLORS[speciesGroup[sp]];
+      bar.title = `${sp}: ${Math.round(freq * 100)}% of trips that week (${nHits}/${nTripsInBin})`;
+      td.appendChild(bar);
     }
-    tbody.appendChild(tr);
-  });
+  }
+  tr.appendChild(td);
+}
   table.appendChild(tbody);
   wrap.appendChild(table);
 
@@ -1599,8 +1611,7 @@ function buildSeasonalityChart(sightingsLong, trips){
     <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Bird}"></span>Bird</span>
     <span><span class="szn-legend-swatch" style="background:${GROUP_COLORS.Other}"></span>Other</span>
     <span><span class="szn-legend-nodata"></span>No trips run that week</span>
-    <span style="flex-basis:100%;">Bar height = share of trips run in that week (pooled across all years) that recorded the species.</span>
-  `;
+    <span style="flex-basis:100%;">Band thickness = share of trips run in that week (pooled across all years) that recorded the species.</span>  `;
   container.appendChild(legend);
   return container;
 }
