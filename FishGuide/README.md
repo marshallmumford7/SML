@@ -24,6 +24,13 @@ A guide to finding fish around the Isles of Shoals, by Marshall Mumford and Mike
 
 Each page is plain HTML. To add an observation, open the species page and add a `<p>` inside the `Field observations` block; to add a map or photo, drop the image in `images/` and copy an existing `<figure>`.
 
+## Where the map coordinates come from
+
+- **RUVS video sites** use the surveyed GPS coordinates (sites 1A–7B, plus Malaga and Star read off the labeled site map).
+- **Trap/seine, rod and reel, and bait-fishing spots** were positioned by georeferencing the guide's maps: the Appledore map against the GPS-referenced site map (checked two independent ways, within ~8 m), the Smuttynose/Star map by matching it to the Appledore map, the New Castle map from Portsmouth Harbor Light, Whaleback Light and Fort Stark (all within ~9 m), and the offshore maps from the island positions. Expect roughly ±50 m, mostly from where markers were hand-placed on the slides.
+- The **sculpin** spot uses the coordinates written in the guide.
+- `sightings.csv` lists every site, coordinate and species record.
+
 ## Map markers
 
-Every marker's position, species and meaning lives in `map-data.js`. Positions are stored as fractions of each base map's width and height, taken from the original slides. To add a sighting, add a record to an existing site or add a new site with its `x`/`y` fraction.
+Every marker's position, species and meaning lives in `map-data.js`. Each site has a `lat`/`lng` and a list of species records. To add a sighting, add a record to an existing site, or add a new site with its coordinates. The species pages use `records.json`-derived pins on the guide's own maps; the full map uses the coordinates.

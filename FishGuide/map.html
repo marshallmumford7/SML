@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -25,12 +26,12 @@
 <main id="main" class="mappage">
 <header class="species-head compact"><div class="inner">
   <h1>Sightings map</h1>
-  <p class="dek">Every marker from the guide, combined. Filter by species or method, then select a site to see what was found there.</p>
+  <p class="dek">Every sighting from the guide on a real map. Filter by species or method, then select a site to see what was found there.</p>
 </div></header>
 <div class="mapwrap">
   <aside class="controls" aria-label="Map filters">
     <fieldset class="areas">
-      <legend>Area</legend>
+      <legend>Jump to</legend>
       <div class="area-btns" id="areaBtns"></div>
     </fieldset>
     <fieldset>
@@ -45,7 +46,12 @@
       <div class="sp-actions"><button type="button" id="spAll">Select all</button><button type="button" id="spNone">Clear</button></div>
       <div id="spList"></div>
     </fieldset>
-    <p class="note">Purple markers mean higher abundance, blue means seen infrequently. Marker positions follow the original guide&rsquo;s maps, so treat them as approximate.</p>
+    <fieldset>
+      <legend>Also show</legend>
+      <label><input type="checkbox" id="showSurvey"><span class="mk survey"></span>Survey sites with no records yet</label>
+      <label><input type="checkbox" id="showPools"><span class="mk pool"></span>2025 tide pools</label>
+    </fieldset>
+    <p class="note">Purple means higher abundance, blue means seen infrequently. Video sites use surveyed GPS coordinates. Trap, rod and bait-fishing spots are placed from the guide&rsquo;s maps and are accurate to roughly 50&nbsp;m.</p>
   </aside>
   <section class="mapcol" aria-label="Map">
     <p class="status" id="status" aria-live="polite"></p>
@@ -60,6 +66,7 @@
 </footer>
 <script src="map-data.js"></script>
 <script src="vendor/leaflet/leaflet.js"></script>
+<script>window.L || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"><\/script>')</script>
 <script src="bigmap.js"></script>
 </body>
 </html>
