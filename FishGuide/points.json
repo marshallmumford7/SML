@@ -1,0 +1,688 @@
+{
+ "format": "fintastic-fish-points",
+ "version": 1,
+ "types": {
+  "video": "Underwater video (RUVS)",
+  "trap": "Trap or seine",
+  "rod": "Rod and reel",
+  "bait": "Bait fishing"
+ },
+ "levels": {
+  "high": "Higher abundance",
+  "low": "Seen infrequently",
+  "present": "Present / caught"
+ },
+ "species": {
+  "atlantic-cod": "Atlantic Cod",
+  "atlantic-pollock": "Atlantic Pollock",
+  "cunner": "Cunner",
+  "rock-gunnel": "Rock Gunnel",
+  "mummichog": "Mummichog",
+  "atlantic-mackerel": "Atlantic Mackerel",
+  "winter-flounder": "Winter Flounder",
+  "rockfish": "Rockfish",
+  "sculpin": "Sculpin",
+  "atlantic-herring": "Atlantic Herring",
+  "rainbow-smelt": "Rainbow Smelt",
+  "sandlance": "Sandlance",
+  "atlantic-tomcod": "Atlantic Tomcod"
+ },
+ "points": [
+  {
+   "id": "ruvs-1a",
+   "name": "RUVS site 1A",
+   "type": "video",
+   "lat": 42.985412,
+   "lng": -70.619865,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "high",
+    "atlantic-pollock": "low",
+    "cunner": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-2a",
+   "name": "RUVS site 2A",
+   "type": "video",
+   "lat": 42.988339,
+   "lng": -70.617961,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "high",
+    "atlantic-pollock": "low",
+    "cunner": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-2b",
+   "name": "RUVS site 2B",
+   "type": "video",
+   "lat": 42.988518,
+   "lng": -70.620651,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "high",
+    "cunner": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-5a",
+   "name": "RUVS site 5A",
+   "type": "video",
+   "lat": 42.990495,
+   "lng": -70.611144,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "high",
+    "atlantic-pollock": "high",
+    "cunner": "low",
+    "rock-gunnel": "high",
+    "winter-flounder": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-4a",
+   "name": "RUVS site 4A",
+   "type": "video",
+   "lat": 42.992913,
+   "lng": -70.61334,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "low",
+    "atlantic-pollock": "high",
+    "cunner": "low",
+    "rock-gunnel": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-4b",
+   "name": "RUVS site 4B",
+   "type": "video",
+   "lat": 42.993688,
+   "lng": -70.610872,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "low",
+    "atlantic-pollock": "high",
+    "cunner": "high",
+    "winter-flounder": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-malaga",
+   "name": "RUVS site Malaga",
+   "type": "video",
+   "lat": 42.983357,
+   "lng": -70.612413,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "high",
+    "atlantic-pollock": "high",
+    "cunner": "low",
+    "winter-flounder": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-6a",
+   "name": "RUVS site 6A",
+   "type": "video",
+   "lat": 42.986428,
+   "lng": -70.609416,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "high",
+    "atlantic-pollock": "high",
+    "cunner": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-6b",
+   "name": "RUVS site 6B",
+   "type": "video",
+   "lat": 42.985264,
+   "lng": -70.60771,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "low",
+    "cunner": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-7a",
+   "name": "RUVS site 7A",
+   "type": "video",
+   "lat": 42.984568,
+   "lng": -70.603535,
+   "source": "gps",
+   "species": {
+    "atlantic-cod": "low",
+    "atlantic-pollock": "high",
+    "cunner": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-11",
+   "name": "Appledore rod & reel spot 1",
+   "type": "rod",
+   "lat": 42.994535,
+   "lng": -70.61238,
+   "source": "guide-map",
+   "species": {
+    "atlantic-cod": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "new-castle-1",
+   "name": "New Castle trap/seine site 2",
+   "type": "trap",
+   "lat": 43.067059,
+   "lng": -70.711701,
+   "source": "guide-map",
+   "species": {
+    "atlantic-herring": "high",
+    "atlantic-pollock": "high",
+    "atlantic-tomcod": "high",
+    "rainbow-smelt": "high",
+    "sandlance": "high",
+    "winter-flounder": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "ruvs-3a",
+   "name": "RUVS site 3A",
+   "type": "video",
+   "lat": 42.992456,
+   "lng": -70.618347,
+   "source": "gps",
+   "species": {
+    "cunner": "high",
+    "winter-flounder": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-13",
+   "name": "Appledore rod & reel spot 2",
+   "type": "rod",
+   "lat": 42.987405,
+   "lng": -70.617669,
+   "source": "guide-map",
+   "species": {
+    "cunner": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-14",
+   "name": "Appledore trap/seine site 1",
+   "type": "trap",
+   "lat": 42.994278,
+   "lng": -70.612453,
+   "source": "guide-map",
+   "species": {
+    "cunner": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-15",
+   "name": "Appledore trap/seine site 7",
+   "type": "trap",
+   "lat": 42.983434,
+   "lng": -70.604672,
+   "source": "guide-map",
+   "species": {
+    "cunner": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-16",
+   "name": "Appledore trap/seine site 5",
+   "type": "trap",
+   "lat": 42.989117,
+   "lng": -70.61851,
+   "source": "guide-map",
+   "species": {
+    "cunner": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-17",
+   "name": "Appledore trap/seine site 3",
+   "type": "trap",
+   "lat": 42.990191,
+   "lng": -70.617274,
+   "source": "guide-map",
+   "species": {
+    "mummichog": "high",
+    "rock-gunnel": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-19",
+   "name": "Appledore trap/seine site 6",
+   "type": "trap",
+   "lat": 42.984839,
+   "lng": -70.618275,
+   "source": "guide-map",
+   "species": {
+    "rock-gunnel": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-20",
+   "name": "Appledore trap/seine site 4",
+   "type": "trap",
+   "lat": 42.989452,
+   "lng": -70.612995,
+   "source": "guide-map",
+   "species": {
+    "rock-gunnel": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-21",
+   "name": "Appledore trap/seine site 2",
+   "type": "trap",
+   "lat": 42.9918,
+   "lng": -70.616705,
+   "source": "guide-map",
+   "species": {
+    "mummichog": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-22",
+   "name": "Appledore trap/seine site 9",
+   "type": "trap",
+   "lat": 42.982403,
+   "lng": -70.607974,
+   "source": "guide-map",
+   "species": {
+    "mummichog": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "appledore-23",
+   "name": "Appledore trap/seine site 8",
+   "type": "trap",
+   "lat": 42.982854,
+   "lng": -70.604091,
+   "source": "guide-map",
+   "species": {
+    "mummichog": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "smuttynose-star-1",
+   "name": "Smuttynose & Star trap/seine site 1",
+   "type": "trap",
+   "lat": 42.980919,
+   "lng": -70.611721,
+   "source": "guide-map",
+   "species": {
+    "mummichog": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "smuttynose-star-2",
+   "name": "Smuttynose & Star trap/seine site 2",
+   "type": "trap",
+   "lat": 42.976884,
+   "lng": -70.612692,
+   "source": "guide-map",
+   "species": {
+    "mummichog": "high"
+   },
+   "note": ""
+  },
+  {
+   "id": "smuttynose-star-3",
+   "name": "Smuttynose & Star rod & reel spot 1",
+   "type": "rod",
+   "lat": 42.984014,
+   "lng": -70.606533,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "smuttynose-star-4",
+   "name": "Smuttynose & Star rod & reel spot 3",
+   "type": "rod",
+   "lat": 42.971061,
+   "lng": -70.61494,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "smuttynose-star-5",
+   "name": "Smuttynose & Star rod & reel spot 2",
+   "type": "rod",
+   "lat": 42.971426,
+   "lng": -70.613638,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "smuttynose-star-6",
+   "name": "Smuttynose & Star rod & reel spot 4",
+   "type": "rod",
+   "lat": 42.970697,
+   "lng": -70.613044,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "new-castle-2",
+   "name": "New Castle trap/seine site 3",
+   "type": "trap",
+   "lat": 43.065617,
+   "lng": -70.698372,
+   "source": "guide-map",
+   "species": {
+    "sandlance": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "new-castle-3",
+   "name": "New Castle trap/seine site 1",
+   "type": "trap",
+   "lat": 43.077033,
+   "lng": -70.69953,
+   "source": "guide-map",
+   "species": {
+    "sandlance": "low"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-1",
+   "name": "Offshore bait-fishing spot 4",
+   "type": "bait",
+   "lat": 42.975614,
+   "lng": -70.592617,
+   "source": "guide-map",
+   "species": {
+    "atlantic-cod": "present",
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-2",
+   "name": "Offshore bait-fishing spot 5",
+   "type": "bait",
+   "lat": 42.971466,
+   "lng": -70.61167,
+   "source": "guide-map",
+   "species": {
+    "atlantic-cod": "present",
+    "atlantic-mackerel": "present",
+    "atlantic-pollock": "present",
+    "rockfish": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-3",
+   "name": "Offshore bait-fishing spot 9",
+   "type": "bait",
+   "lat": 42.970364,
+   "lng": -70.614973,
+   "source": "guide-map",
+   "species": {
+    "atlantic-cod": "present",
+    "atlantic-mackerel": "present",
+    "atlantic-pollock": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-4",
+   "name": "Offshore bait-fishing spot 15",
+   "type": "bait",
+   "lat": 42.964131,
+   "lng": -70.603618,
+   "source": "guide-map",
+   "species": {
+    "atlantic-cod": "present",
+    "atlantic-pollock": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-5",
+   "name": "Offshore bait-fishing spot 18",
+   "type": "bait",
+   "lat": 42.961589,
+   "lng": -70.571384,
+   "source": "guide-map",
+   "species": {
+    "atlantic-cod": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-6",
+   "name": "Offshore bait-fishing spot 19",
+   "type": "bait",
+   "lat": 42.961508,
+   "lng": -70.570125,
+   "source": "guide-map",
+   "species": {
+    "atlantic-cod": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-7",
+   "name": "Offshore bait-fishing spot 6",
+   "type": "bait",
+   "lat": 42.9713,
+   "lng": -70.612002,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present",
+    "atlantic-pollock": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-8",
+   "name": "Offshore bait-fishing spot 11",
+   "type": "bait",
+   "lat": 42.969939,
+   "lng": -70.614425,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present",
+    "atlantic-pollock": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-9",
+   "name": "Offshore bait-fishing spot 10",
+   "type": "bait",
+   "lat": 42.970455,
+   "lng": -70.601441,
+   "source": "guide-map",
+   "species": {
+    "atlantic-pollock": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-10",
+   "name": "Offshore bait-fishing spot 14",
+   "type": "bait",
+   "lat": 42.965658,
+   "lng": -70.619363,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present",
+    "atlantic-pollock": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-11",
+   "name": "Offshore bait-fishing spot 16",
+   "type": "bait",
+   "lat": 42.962405,
+   "lng": -70.601962,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present",
+    "atlantic-pollock": "present",
+    "rockfish": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-12",
+   "name": "Offshore bait-fishing spot 17",
+   "type": "bait",
+   "lat": 42.962237,
+   "lng": -70.604921,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present",
+    "atlantic-pollock": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-13",
+   "name": "Offshore bait-fishing spot 1",
+   "type": "bait",
+   "lat": 42.996477,
+   "lng": -70.616173,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-14",
+   "name": "Offshore bait-fishing spot 2",
+   "type": "bait",
+   "lat": 42.993121,
+   "lng": -70.609407,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-15",
+   "name": "Offshore bait-fishing spot 3",
+   "type": "bait",
+   "lat": 42.978127,
+   "lng": -70.612035,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-16",
+   "name": "Offshore bait-fishing spot 7",
+   "type": "bait",
+   "lat": 42.971356,
+   "lng": -70.624583,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-17",
+   "name": "Offshore bait-fishing spot 13",
+   "type": "bait",
+   "lat": 42.969556,
+   "lng": -70.612587,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-18",
+   "name": "Offshore bait-fishing spot 8",
+   "type": "bait",
+   "lat": 42.970656,
+   "lng": -70.615065,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "offshore-19",
+   "name": "Offshore bait-fishing spot 12",
+   "type": "bait",
+   "lat": 42.969664,
+   "lng": -70.613159,
+   "source": "guide-map",
+   "species": {
+    "atlantic-mackerel": "present"
+   },
+   "note": ""
+  },
+  {
+   "id": "bait-sculpin",
+   "name": "Sculpin bait-fishing spot",
+   "type": "bait",
+   "lat": 42.972967,
+   "lng": -70.601633,
+   "source": "gps",
+   "species": {
+    "sculpin": "present"
+   },
+   "note": ""
+  }
+ ],
+ "revision": "2026-09-25-offshore-realign"
+}

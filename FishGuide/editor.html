@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Point editor · Fintastic Fish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<style>
+:root {
+  --bg: #eef4f5; --panel: #ffffff; --ink: #1c2a2e; --muted: #56696f; --line: #c9d9dc;
+  --deep: #1e3d47; --deep-ink: #ffffff; --sea: #a2c4c9; --water: #b6d6df;
+  --purple: #c27ba0; --blue: #9fc5e8; --red: #e0261b; --accent: #1f5f73; --warn: #9a3412;
+  --sel: #ffb000;
+  --ui: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11191c; --panel: #182327; --ink: #e3ecee; --muted: #9db0b5; --line: #2c3c41;
+    --deep: #0c1417; --deep-ink: #e3ecee; --sea: #2c4a51; --water: #1f3a42;
+    --accent: #7cc4d6; --warn: #fdba74; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11191c; --panel: #182327; --ink: #e3ecee; --muted: #9db0b5; --line: #2c3c41;
+  --deep: #0c1417; --deep-ink: #e3ecee; --sea: #2c4a51; --water: #1f3a42;
+  --accent: #7cc4d6; --warn: #fdba74; color-scheme: dark;
+}
+:root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+*, *::before, *::after { box-sizing: inherit; }
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 400 15px/1.45 var(--ui); display: flex; flex-direction: column; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* top bar */
+.bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: .55rem 1rem; background: var(--deep); color: var(--deep-ink); }
+.bar h1 { font: 700 1.35rem/1 var(--display); margin: 0; letter-spacing: .01em; }
+.bar h1 span { font-weight: 600; opacity: .7; }
+.save-state { font-size: .85rem; opacity: .8; margin-right: auto; }
+.bar button { background: transparent; border: 1px solid rgba(255,255,255,.35); color: var(--deep-ink); border-radius: 5px; padding: .35rem .75rem; cursor: pointer; font-weight: 500; }
+.bar button:hover { background: rgba(255,255,255,.12); }
+.bar button.primary { background: #fff; color: #1e3d47; border-color: #fff; font-weight: 600; }
+.bar button:disabled { opacity: .45; cursor: default; }
+
+/* layout */
+.work { flex: 1; min-height: 0; display: grid; grid-template-columns: 17.5rem minmax(0, 1fr) 21rem; }
+aside { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+aside.inspector { border-right: 0; border-left: 1px solid var(--line); overflow-y: auto; }
+.side-head { padding: .75rem .9rem .6rem; border-bottom: 1px solid var(--line); display: grid; gap: .5rem; }
+.side-head .row { display: flex; gap: .5rem; }
+input[type="search"], input[type="text"], input[type="number"], select, textarea {
+  width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 5px; padding: .38rem .55rem; min-width: 0;
+}
+textarea { resize: vertical; min-height: 3.5rem; }
+.addbtn { width: 100%; border: 0; border-radius: 5px; padding: .5rem; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; }
+:root[data-theme="dark"] .addbtn { color: #0c1417; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .addbtn { color: #0c1417; } }
+.addbtn[aria-pressed="true"] { background: var(--sel); color: #1c2a2e; }
+.mobile-add { display: none; width: auto; padding: .45rem .9rem; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.count { font-size: .82rem; color: var(--muted); }
+.list { list-style: none; margin: 0; padding: .25rem 0; overflow-y: auto; flex: 1; }
+.list li button { width: 100%; text-align: left; border: 0; background: none; padding: .42rem .9rem; display: grid; grid-template-columns: 1.1rem 1fr auto; gap: .55rem; align-items: center; cursor: pointer; }
+.list li button:hover { background: var(--bg); }
+.list li button[aria-current="true"] { background: color-mix(in srgb, var(--sel) 22%, transparent); }
+.list .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list .n { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.list .edited::after { content: " •"; color: var(--sel); }
+
+/* map */
+.mapcol { position: relative; min-height: 0; }
+#map { position: absolute; inset: 0; background: var(--water); }
+#map.adding { cursor: crosshair; }
+.maptools { position: absolute; z-index: 800; top: .6rem; right: .6rem; display: grid; gap: .4rem; justify-items: end; }
+.seg { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.seg button { border: 0; background: none; padding: .35rem .6rem; cursor: pointer; font-size: .85rem; font-weight: 500; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--deep); color: var(--deep-ink); }
+.checks { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: .3rem .6rem; font-size: .85rem; box-shadow: 0 2px 8px rgba(0,0,0,.15); display: flex; gap: .8rem; }
+.checks label { display: inline-flex; gap: .3rem; align-items: center; cursor: pointer; }
+.hint { position: absolute; z-index: 800; left: 50%; bottom: 1rem; transform: translateX(-50%); background: var(--deep); color: var(--deep-ink); padding: .45rem .9rem; border-radius: 6px; font-size: .9rem; box-shadow: 0 4px 14px rgba(0,0,0,.25); pointer-events: none; }
+.hint[hidden] { display: none; }
+
+/* markers */
+.pt-icon { background: none; border: 0; }
+.pt { position: absolute; inset: 0; margin: auto; display: block; border: 1.5px solid #333; background: var(--blue); }
+.pt.dot { border-radius: 50%; }
+.pt.dia { inset: 3px; transform: rotate(45deg); }
+.pt.hi { background: var(--purple); }
+.pt.rod { border-radius: 50%; background: #2b2b2b; border-color: #fff; inset: 3px; }
+.pt.rod::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #fff; }
+.pt.bait { border-radius: 50%; background: var(--red); border-color: #fff; inset: 3px; }
+.pt.dim { opacity: .28; }
+.pt.sel { box-shadow: 0 0 0 3px var(--sel), 0 0 0 5px #1c2a2e; }
+.pt-badge { position: absolute; right: -8px; top: -8px; min-width: 16px; height: 16px; padding: 0 3px; border-radius: 8px; background: #1e3d47; color: #fff; font: 700 10px/16px var(--ui); text-align: center; }
+.pt-lock { position: absolute; left: -7px; bottom: -7px; width: 13px; height: 13px; border-radius: 50%; background: #fff; border: 1px solid #1e3d47; display: grid; place-items: center; }
+.pt-lock svg { width: 7px; height: 8px; display: block; }
+.ref-sq { display: block; width: 12px; height: 12px; margin: auto; background: #fff; border: 1.5px solid #56696f; border-radius: 2px; }
+.leaflet-tooltip.reflabel { font: 600 11px var(--ui); padding: 1px 5px; }
+
+/* inspector */
+.insp { padding: .9rem 1rem 1.2rem; display: grid; gap: .9rem; }
+.insp h2 { font: 700 1.3rem/1.1 var(--display); margin: 0; color: var(--accent); }
+.insp .empty p { color: var(--muted); margin: .3rem 0 .6rem; }
+.insp .empty ol { margin: 0; padding-left: 1.2rem; color: var(--muted); display: grid; gap: .35rem; }
+.field { display: grid; gap: .3rem; }
+.field > span, .field > legend { font-size: .8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: 0; }
+fieldset.field { border: 0; margin: 0; padding: 0; }
+.types { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; }
+.types button { border: 1px solid var(--line); background: var(--bg); border-radius: 5px; padding: .38rem .45rem; cursor: pointer; display: flex; align-items: center; gap: .4rem; font-size: .9rem; text-align: left; }
+.types button[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); font-weight: 600; }
+.types .g { position: relative; width: 14px; height: 14px; flex: none; }
+.coords { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+.coords label { display: grid; gap: .15rem; font-size: .8rem; color: var(--muted); }
+.coords input { font-variant-numeric: tabular-nums; color: var(--ink); }
+.src { display: flex; align-items: center; justify-content: space-between; gap: .5rem; font-size: .85rem; color: var(--muted); }
+.src button { border: 1px solid var(--line); background: var(--bg); border-radius: 5px; padding: .2rem .55rem; cursor: pointer; font-size: .82rem; }
+.sp-table { border: 1px solid var(--line); border-radius: 6px; max-height: 17rem; overflow-y: auto; }
+.sp-row { display: grid; grid-template-columns: 1fr 7.2rem; align-items: center; gap: .4rem; padding: .22rem .55rem; border-bottom: 1px solid var(--line); }
+.sp-row:last-child { border-bottom: 0; }
+.sp-row.on { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+.sp-row.on span { font-weight: 600; }
+.sp-row select { padding: .18rem .3rem; font-size: .85rem; }
+.addsp { display: flex; gap: .4rem; }
+.addsp button, .actions button { border: 1px solid var(--line); background: var(--bg); border-radius: 5px; padding: .38rem .7rem; cursor: pointer; white-space: nowrap; }
+.actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.actions .danger { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
+
+/* dialogs & toast */
+dialog { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); max-width: min(40rem, 94vw); width: 100%; padding: 1.1rem 1.2rem; }
+dialog::backdrop { background: rgba(10,20,24,.55); }
+dialog h3 { font: 700 1.3rem var(--display); margin: 0 0 .4rem; }
+dialog p { margin: .3rem 0 .7rem; color: var(--muted); }
+dialog textarea { min-height: 14rem; font: 12px/1.4 ui-monospace, Menlo, monospace; }
+.dlg-actions { display: flex; gap: .5rem; justify-content: flex-end; margin-top: .8rem; flex-wrap: wrap; }
+.dlg-actions button { border: 1px solid var(--line); background: var(--bg); border-radius: 5px; padding: .42rem .9rem; cursor: pointer; }
+.dlg-actions button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.export-grid { display: grid; gap: .6rem; }
+.export-grid button { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: .65rem .8rem; cursor: pointer; }
+.export-grid strong { display: block; font-size: 1rem; }
+.export-grid span { font-size: .88rem; color: var(--muted); }
+.toast { position: fixed; z-index: 2000; left: 50%; bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--deep); color: var(--deep-ink); padding: .55rem 1rem; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.3); font-size: .92rem; }
+.toast[hidden] { display: none; }
+.restore { background: color-mix(in srgb, var(--sel) 25%, var(--panel)); border-bottom: 1px solid var(--line); padding: .45rem 1rem; font-size: .9rem; display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; }
+.restore[hidden] { display: none; }
+.restore button { border: 1px solid var(--line); background: var(--panel); border-radius: 5px; padding: .2rem .6rem; cursor: pointer; }
+
+@media (max-width: 1000px) {
+  body { height: auto; min-height: 100%; }
+  .work { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .mapcol { order: 1; height: 62vh; min-height: 360px; }
+  aside.inspector { order: 2; border-left: 0; border-top: 1px solid var(--line); overflow: visible; }
+  aside.points { order: 3; border-right: 0; border-top: 1px solid var(--line); max-height: 60vh; }
+  .maptools { left: .6rem; right: .6rem; justify-items: start; }
+  .mobile-add { display: inline-block; }
+  .seg { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <h1>Fintastic Fish <span>· point editor</span></h1>
+  <span class="save-state" id="saveState" aria-live="polite"></span>
+  <button type="button" id="undoBtn" title="Undo (Ctrl+Z)">Undo</button>
+  <button type="button" id="importBtn">Import</button>
+  <button type="button" id="exportBtn" class="primary">Export</button>
+</header>
+<div class="restore" id="restoreBar" hidden>
+  <span id="restoreMsg">Your earlier edits in this browser were restored.</span>
+  <button type="button" id="discardBtn">Discard them and start from the guide's points</button>
+  <button type="button" id="keepOldBtn" hidden>Restore my earlier edits instead</button>
+</div>
+<main class="work">
+  <aside class="points" aria-label="Points">
+    <div class="side-head">
+      <button type="button" class="addbtn" id="addBtn" aria-pressed="false">+ Add point</button>
+      <input type="search" id="search" placeholder="Search points or species" aria-label="Search points">
+      <div class="row">
+        <select id="spFilter" aria-label="Highlight a species"></select>
+      </div>
+      <span class="count" id="count"></span>
+    </div>
+    <ul class="list" id="list"></ul>
+  </aside>
+  <section class="mapcol" aria-label="Map">
+    <div id="map" tabindex="0" aria-label="Map. Drag markers to move them."></div>
+    <div class="maptools">
+      <div class="seg" id="baseSeg" role="group" aria-label="Base map"></div>
+      <div class="seg" id="jumpSeg" role="group" aria-label="Jump to area"></div>
+      <button type="button" class="addbtn mobile-add" id="addBtn2" aria-pressed="false">+ Add point</button>
+      <div class="checks">
+        <label><input type="checkbox" id="refSurvey" checked> Survey sites</label>
+        <label><input type="checkbox" id="refPools"> Tide pools</label>
+      </div>
+    </div>
+    <div class="hint" id="hint" hidden>Click the map to place the new point · Esc to cancel</div>
+  </section>
+  <aside class="inspector" aria-label="Selected point"><div class="insp" id="insp"></div></aside>
+</main>
+
+<dialog id="exportDlg" aria-labelledby="exTitle">
+  <h3 id="exTitle">Export points</h3>
+  <p>Replace <code>points.json</code> in the website folder with the exported file to update every map on the site.</p>
+  <div class="export-grid">
+    <button type="button" data-ex="json"><strong>points.json</strong><span>For the website: drop it into the site folder, replacing the old one.</span></button>
+    <button type="button" data-ex="csv"><strong>sightings.csv</strong><span>One row per point and species, for spreadsheets.</span></button>
+    <button type="button" data-ex="copy"><strong>Show as text</strong><span>Copy the points.json text by hand.</span></button>
+  </div>
+  <div class="dlg-actions"><button type="button" data-close>Close</button></div>
+</dialog>
+<dialog id="textDlg" aria-labelledby="txTitle">
+  <h3 id="txTitle">points.json</h3>
+  <p id="txNote">Select all and copy, then save it as <code>points.json</code>.</p>
+  <textarea id="txArea" readonly spellcheck="false"></textarea>
+  <div class="dlg-actions"><button type="button" id="txCopy" class="primary">Copy</button><button type="button" data-close>Close</button></div>
+</dialog>
+<dialog id="importDlg" aria-labelledby="imTitle">
+  <h3 id="imTitle">Import points</h3>
+  <p>Load a <code>points.json</code> or a <code>sightings.csv</code> exported from this editor. This replaces the points you have now (you can undo).</p>
+  <input type="file" id="imFile" accept=".json,.csv,application/json,text/csv">
+  <p style="margin-top:.8rem">…or paste the file contents:</p>
+  <textarea id="imText" spellcheck="false" placeholder='{"format": "fintastic-fish-points", ...}'></textarea>
+  <div class="dlg-actions"><button type="button" id="imGo" class="primary">Import</button><button type="button" data-close>Cancel</button></div>
+</dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>window.L || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"><\/script>')</script>
+<script>
+const SITE_MODE = true;
+const BASES = {"images": {"guide-appledore": {"url": "images/base-guide-appledore.webp", "bounds": [[42.981909, -70.623305], [42.99488, -70.601721]], "attribution": "Guide maps \u00a9 OpenStreetMap contributors"}, "guide-smuttynose": {"url": "images/base-guide-smuttynose.jpg", "bounds": [[42.970211, -70.623073], [42.985842, -70.59699]], "attribution": ""}, "guide-newcastle": {"url": "images/base-guide-newcastle.webp", "bounds": [[43.041251, -70.745919], [43.084345, -70.674016]], "attribution": ""}, "satellite": {"url": "images/base-satellite.webp", "bounds": [[42.944901, -70.659748], [43.029912, -70.562715]], "attribution": "Imagery \u00a9 Google (from the guide)"}, "bathymetry": {"url": "images/base-bathymetry.webp", "bounds": [[42.976805, -70.623804], [42.994807, -70.599239]], "attribution": "Site map: bathymetry \u00a9 CCOM/JHC, University of New Hampshire"}}};
+const REF = {"survey":[{"id":"survey-1b","name":"CTD-only site 1B","lat":42.98453804,"lng":-70.62226345},{"id":"survey-3b","name":"CTD-only site 3B","lat":42.99380526,"lng":-70.62042977},{"id":"survey-5b","name":"CTD-only site 5B","lat":42.99091108,"lng":-70.6085269},{"id":"survey-7b","name":"CTD-only site 7B","lat":42.98615336,"lng":-70.60194401},{"id":"survey-8a","name":"Survey site 8A","lat":42.9771797,"lng":-70.62452438},{"id":"survey-8b","name":"Survey site 8B","lat":42.9787335,"lng":-70.62289123},{"id":"survey-9a","name":"Survey site 9A","lat":42.9772817,"lng":-70.61897248},{"id":"survey-9b","name":"Survey site 9B","lat":42.97924076,"lng":-70.61874892},{"id":"survey-10a","name":"Survey site 10A","lat":42.97636183,"lng":-70.61594503},{"id":"survey-10b","name":"Survey site 10B","lat":42.97514357,"lng":-70.6180378},{"id":"survey-11a","name":"Survey site 11A","lat":42.97627156,"lng":-70.60865307},{"id":"survey-11b","name":"Survey site 11B","lat":42.97464929,"lng":-70.60713979},{"id":"survey-12a","name":"Survey site 12A","lat":42.97425712,"lng":-70.60006716},{"id":"survey-12b","name":"Survey site 12B","lat":42.9755468,"lng":-70.6020908},{"id":"survey-13a","name":"Survey site 13A","lat":42.96949267,"lng":-70.62454269},{"id":"survey-13b","name":"Survey site 13B","lat":42.9714015,"lng":-70.62402477},{"id":"survey-star","name":"RUVS site Star","lat":42.979091,"lng":-70.615386}],"pools":[{"id":"SM1","lng":-70.6115,"lat":42.98104},{"id":"SM2","lng":-70.6114,"lat":42.98109},{"id":"SM3","lng":-70.6106,"lat":42.98087},{"id":"SM4","lng":-70.6105,"lat":42.98093},{"id":"LL1","lng":-70.6166,"lat":42.99154},{"id":"LL2","lng":-70.6168,"lat":42.99137},{"id":"LL3","lng":-70.617,"lat":42.99114},{"id":"LL4","lng":-70.6169,"lat":42.9911},{"id":"ST1","lng":-70.6149,"lat":42.9784},{"id":"ST2","lng":-70.6148,"lat":42.97846},{"id":"ST3","lng":-70.6125,"lat":42.9777},{"id":"ST4","lng":-70.6121,"lat":42.9777}]};
+const EMBEDDED = {"format":"fintastic-fish-points","version":1,"types":{"video":"Underwater video (RUVS)","trap":"Trap or seine","rod":"Rod and reel","bait":"Bait fishing"},"levels":{"high":"Higher abundance","low":"Seen infrequently","present":"Present / caught"},"species":{"atlantic-cod":"Atlantic Cod","atlantic-pollock":"Atlantic Pollock","cunner":"Cunner","rock-gunnel":"Rock Gunnel","mummichog":"Mummichog","atlantic-mackerel":"Atlantic Mackerel","winter-flounder":"Winter Flounder","rockfish":"Rockfish","sculpin":"Sculpin","atlantic-herring":"Atlantic Herring","rainbow-smelt":"Rainbow Smelt","sandlance":"Sandlance","atlantic-tomcod":"Atlantic Tomcod"},"points":[{"id":"ruvs-1a","name":"RUVS site 1A","type":"video","lat":42.985412,"lng":-70.619865,"source":"gps","species":{"atlantic-cod":"high","atlantic-pollock":"low","cunner":"low"},"note":""},{"id":"ruvs-2a","name":"RUVS site 2A","type":"video","lat":42.988339,"lng":-70.617961,"source":"gps","species":{"atlantic-cod":"high","atlantic-pollock":"low","cunner":"low"},"note":""},{"id":"ruvs-2b","name":"RUVS site 2B","type":"video","lat":42.988518,"lng":-70.620651,"source":"gps","species":{"atlantic-cod":"high","cunner":"low"},"note":""},{"id":"ruvs-5a","name":"RUVS site 5A","type":"video","lat":42.990495,"lng":-70.611144,"source":"gps","species":{"atlantic-cod":"high","atlantic-pollock":"high","cunner":"low","rock-gunnel":"high","winter-flounder":"low"},"note":""},{"id":"ruvs-4a","name":"RUVS site 4A","type":"video","lat":42.992913,"lng":-70.61334,"source":"gps","species":{"atlantic-cod":"low","atlantic-pollock":"high","cunner":"low","rock-gunnel":"low"},"note":""},{"id":"ruvs-4b","name":"RUVS site 4B","type":"video","lat":42.993688,"lng":-70.610872,"source":"gps","species":{"atlantic-cod":"low","atlantic-pollock":"high","cunner":"high","winter-flounder":"high"},"note":""},{"id":"ruvs-malaga","name":"RUVS site Malaga","type":"video","lat":42.983357,"lng":-70.612413,"source":"gps","species":{"atlantic-cod":"high","atlantic-pollock":"high","cunner":"low","winter-flounder":"high"},"note":""},{"id":"ruvs-6a","name":"RUVS site 6A","type":"video","lat":42.986428,"lng":-70.609416,"source":"gps","species":{"atlantic-cod":"high","atlantic-pollock":"high","cunner":"low"},"note":""},{"id":"ruvs-6b","name":"RUVS site 6B","type":"video","lat":42.985264,"lng":-70.60771,"source":"gps","species":{"atlantic-cod":"low","cunner":"high"},"note":""},{"id":"ruvs-7a","name":"RUVS site 7A","type":"video","lat":42.984568,"lng":-70.603535,"source":"gps","species":{"atlantic-cod":"low","atlantic-pollock":"high","cunner":"low"},"note":""},{"id":"appledore-11","name":"Appledore rod & reel spot 1","type":"rod","lat":42.994535,"lng":-70.61238,"source":"guide-map","species":{"atlantic-cod":"present"},"note":""},{"id":"new-castle-1","name":"New Castle trap/seine site 2","type":"trap","lat":43.067059,"lng":-70.711701,"source":"guide-map","species":{"atlantic-herring":"high","atlantic-pollock":"high","atlantic-tomcod":"high","rainbow-smelt":"high","sandlance":"high","winter-flounder":"high"},"note":""},{"id":"ruvs-3a","name":"RUVS site 3A","type":"video","lat":42.992456,"lng":-70.618347,"source":"gps","species":{"cunner":"high","winter-flounder":"low"},"note":""},{"id":"appledore-13","name":"Appledore rod & reel spot 2","type":"rod","lat":42.987405,"lng":-70.617669,"source":"guide-map","species":{"cunner":"present"},"note":""},{"id":"appledore-14","name":"Appledore trap/seine site 1","type":"trap","lat":42.994278,"lng":-70.612453,"source":"guide-map","species":{"cunner":"high"},"note":""},{"id":"appledore-15","name":"Appledore trap/seine site 7","type":"trap","lat":42.983434,"lng":-70.604672,"source":"guide-map","species":{"cunner":"low"},"note":""},{"id":"appledore-16","name":"Appledore trap/seine site 5","type":"trap","lat":42.989117,"lng":-70.61851,"source":"guide-map","species":{"cunner":"low"},"note":""},{"id":"appledore-17","name":"Appledore trap/seine site 3","type":"trap","lat":42.990191,"lng":-70.617274,"source":"guide-map","species":{"mummichog":"high","rock-gunnel":"high"},"note":""},{"id":"appledore-19","name":"Appledore trap/seine site 6","type":"trap","lat":42.984839,"lng":-70.618275,"source":"guide-map","species":{"rock-gunnel":"low"},"note":""},{"id":"appledore-20","name":"Appledore trap/seine site 4","type":"trap","lat":42.989452,"lng":-70.612995,"source":"guide-map","species":{"rock-gunnel":"low"},"note":""},{"id":"appledore-21","name":"Appledore trap/seine site 2","type":"trap","lat":42.9918,"lng":-70.616705,"source":"guide-map","species":{"mummichog":"high"},"note":""},{"id":"appledore-22","name":"Appledore trap/seine site 9","type":"trap","lat":42.982403,"lng":-70.607974,"source":"guide-map","species":{"mummichog":"low"},"note":""},{"id":"appledore-23","name":"Appledore trap/seine site 8","type":"trap","lat":42.982854,"lng":-70.604091,"source":"guide-map","species":{"mummichog":"high"},"note":""},{"id":"smuttynose-star-1","name":"Smuttynose & Star trap/seine site 1","type":"trap","lat":42.980919,"lng":-70.611721,"source":"guide-map","species":{"mummichog":"high"},"note":""},{"id":"smuttynose-star-2","name":"Smuttynose & Star trap/seine site 2","type":"trap","lat":42.976884,"lng":-70.612692,"source":"guide-map","species":{"mummichog":"high"},"note":""},{"id":"smuttynose-star-3","name":"Smuttynose & Star rod & reel spot 1","type":"rod","lat":42.984014,"lng":-70.606533,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"smuttynose-star-4","name":"Smuttynose & Star rod & reel spot 3","type":"rod","lat":42.971061,"lng":-70.61494,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"smuttynose-star-5","name":"Smuttynose & Star rod & reel spot 2","type":"rod","lat":42.971426,"lng":-70.613638,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"smuttynose-star-6","name":"Smuttynose & Star rod & reel spot 4","type":"rod","lat":42.970697,"lng":-70.613044,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"new-castle-2","name":"New Castle trap/seine site 3","type":"trap","lat":43.065617,"lng":-70.698372,"source":"guide-map","species":{"sandlance":"low"},"note":""},{"id":"new-castle-3","name":"New Castle trap/seine site 1","type":"trap","lat":43.077033,"lng":-70.69953,"source":"guide-map","species":{"sandlance":"low"},"note":""},{"id":"offshore-1","name":"Offshore bait-fishing spot 4","type":"bait","lat":42.975614,"lng":-70.592617,"source":"guide-map","species":{"atlantic-cod":"present","atlantic-mackerel":"present"},"note":""},{"id":"offshore-2","name":"Offshore bait-fishing spot 5","type":"bait","lat":42.971466,"lng":-70.61167,"source":"guide-map","species":{"atlantic-cod":"present","atlantic-mackerel":"present","atlantic-pollock":"present","rockfish":"present"},"note":""},{"id":"offshore-3","name":"Offshore bait-fishing spot 9","type":"bait","lat":42.970364,"lng":-70.614973,"source":"guide-map","species":{"atlantic-cod":"present","atlantic-mackerel":"present","atlantic-pollock":"present"},"note":""},{"id":"offshore-4","name":"Offshore bait-fishing spot 15","type":"bait","lat":42.964131,"lng":-70.603618,"source":"guide-map","species":{"atlantic-cod":"present","atlantic-pollock":"present"},"note":""},{"id":"offshore-5","name":"Offshore bait-fishing spot 18","type":"bait","lat":42.961589,"lng":-70.571384,"source":"guide-map","species":{"atlantic-cod":"present"},"note":""},{"id":"offshore-6","name":"Offshore bait-fishing spot 19","type":"bait","lat":42.961508,"lng":-70.570125,"source":"guide-map","species":{"atlantic-cod":"present"},"note":""},{"id":"offshore-7","name":"Offshore bait-fishing spot 6","type":"bait","lat":42.9713,"lng":-70.612002,"source":"guide-map","species":{"atlantic-mackerel":"present","atlantic-pollock":"present"},"note":""},{"id":"offshore-8","name":"Offshore bait-fishing spot 11","type":"bait","lat":42.969939,"lng":-70.614425,"source":"guide-map","species":{"atlantic-mackerel":"present","atlantic-pollock":"present"},"note":""},{"id":"offshore-9","name":"Offshore bait-fishing spot 10","type":"bait","lat":42.970455,"lng":-70.601441,"source":"guide-map","species":{"atlantic-pollock":"present"},"note":""},{"id":"offshore-10","name":"Offshore bait-fishing spot 14","type":"bait","lat":42.965658,"lng":-70.619363,"source":"guide-map","species":{"atlantic-mackerel":"present","atlantic-pollock":"present"},"note":""},{"id":"offshore-11","name":"Offshore bait-fishing spot 16","type":"bait","lat":42.962405,"lng":-70.601962,"source":"guide-map","species":{"atlantic-mackerel":"present","atlantic-pollock":"present","rockfish":"present"},"note":""},{"id":"offshore-12","name":"Offshore bait-fishing spot 17","type":"bait","lat":42.962237,"lng":-70.604921,"source":"guide-map","species":{"atlantic-mackerel":"present","atlantic-pollock":"present"},"note":""},{"id":"offshore-13","name":"Offshore bait-fishing spot 1","type":"bait","lat":42.996477,"lng":-70.616173,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"offshore-14","name":"Offshore bait-fishing spot 2","type":"bait","lat":42.993121,"lng":-70.609407,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"offshore-15","name":"Offshore bait-fishing spot 3","type":"bait","lat":42.978127,"lng":-70.612035,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"offshore-16","name":"Offshore bait-fishing spot 7","type":"bait","lat":42.971356,"lng":-70.624583,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"offshore-17","name":"Offshore bait-fishing spot 13","type":"bait","lat":42.969556,"lng":-70.612587,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"offshore-18","name":"Offshore bait-fishing spot 8","type":"bait","lat":42.970656,"lng":-70.615065,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"offshore-19","name":"Offshore bait-fishing spot 12","type":"bait","lat":42.969664,"lng":-70.613159,"source":"guide-map","species":{"atlantic-mackerel":"present"},"note":""},{"id":"bait-sculpin","name":"Sculpin bait-fishing spot","type":"bait","lat":42.972967,"lng":-70.601633,"source":"gps","species":{"sculpin":"present"},"note":""}],"revision":"2026-09-25-offshore-realign"};
+const STORE_KEY = 'fintastic-fish-points-v1';
+const TYPES = ['video', 'trap', 'rod', 'bait'];
+const TYPE_NAME = { video: 'Underwater video', trap: 'Trap or seine', rod: 'Rod and reel', bait: 'Bait fishing' };
+const PIN = { video: 'dot', trap: 'dia', rod: 'rod', bait: 'bait' };
+const LEVELS = { video: ['high', 'low'], trap: ['high', 'low'], rod: ['present'], bait: ['present'] };
+const LEVEL_NAME = { high: 'Higher', low: 'Infrequent', present: 'Present' };
+const SOURCE_NAME = { gps: 'Surveyed GPS', 'guide-map': 'Placed from the guide map (±50 m)', editor: 'Placed in the editor', 'survey-site': 'Surveyed GPS (survey site)' };
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const r6 = (v) => Math.round(v * 1e6) / 1e6;
+const slug = (s) => String(s).toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').replace(/-+/g, '-') || 'item';
+
+let doc, original, selId = null, adding = false, filterSp = '', query = '';
+const undoStack = [];
+const unlocked = new Set();
+
+// ---------- storage ----------
+function persist() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(doc)); $('#saveState').textContent = `Saved in this browser · ${doc.points.length} points`; }
+  catch (e) { $('#saveState').textContent = `${doc.points.length} points · not saved (browser storage unavailable) · export to keep changes`; }
+}
+function loadStored() {
+  try { const s = localStorage.getItem(STORE_KEY); if (!s) return null; const d = JSON.parse(s); return valid(d) ? d : null; } catch (e) { return null; }
+}
+function valid(d) { return d && d.format === 'fintastic-fish-points' && Array.isArray(d.points) && d.species; }
+
+function commit(label) {       // call BEFORE a mutation
+  undoStack.push(JSON.stringify(doc));
+  if (undoStack.length > 80) undoStack.shift();
+  $('#undoBtn').disabled = false;
+}
+function undo() {
+  if (!undoStack.length) return;
+  doc = JSON.parse(undoStack.pop());
+  if (selId && !doc.points.find((p) => p.id === selId)) selId = null;
+  $('#undoBtn').disabled = !undoStack.length;
+  persist(); renderAll(); toast('Undone');
+}
+
+// ---------- map ----------
+const map = L.map('map', { zoomSnap: 0.25, maxZoom: 20, minZoom: 11, attributionControl: true, keyboard: true, zoomControl: false });
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+map.attributionControl.setPrefix('Leaflet');
+const overlays = {};
+for (const [id, b] of Object.entries(BASES.images)) overlays[id] = L.imageOverlay(b.url, b.bounds, { interactive: false, attribution: b.attribution || '' });
+const BASE_SETS = [
+  { id: 'guide', name: 'Guide maps', layers: ['satellite', 'guide-newcastle', 'guide-smuttynose', 'guide-appledore'] },
+  { id: 'satellite', name: 'Satellite', layers: ['satellite'] },
+  { id: 'bathy', name: 'Site map', layers: ['satellite', 'bathymetry'] },
+];
+if (SITE_MODE) {
+  overlays.osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap contributors' });
+  overlays.esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' });
+  BASE_SETS.push({ id: 'osm', name: 'Streets', layers: ['osm'] }, { id: 'esri', name: 'Live satellite', layers: ['esri'] });
+}
+let currentBase = null;
+function setBase(id) {
+  const set = BASE_SETS.find((b) => b.id === id) || BASE_SETS[0];
+  Object.values(overlays).forEach((l) => map.removeLayer(l));
+  set.layers.forEach((l) => overlays[l].addTo(map));
+  currentBase = set.id;
+  [...$('#baseSeg').children].forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === set.id)));
+}
+BASE_SETS.forEach((b) => {
+  const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = b.name; btn.dataset.id = b.id;
+  btn.addEventListener('click', () => setBase(b.id)); $('#baseSeg').appendChild(btn);
+});
+const VIEWS = { 'Appledore': [[42.9828, -70.6250], [42.9955, -70.6005]], 'All Shoals': [[42.9600, -70.6340], [42.9990, -70.5650]], 'New Castle': [[43.0580, -70.7200], [43.0800, -70.6920]] };
+Object.entries(VIEWS).forEach(([n, bnds]) => {
+  const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = n;
+  btn.addEventListener('click', () => map.fitBounds(bnds)); $('#jumpSeg').appendChild(btn);
+});
+L.control.scale({ imperial: false }).addTo(map);
+
+const markerLayer = L.layerGroup().addTo(map);
+const refLayer = L.layerGroup().addTo(map);
+const poolLayer = L.layerGroup();
+const markers = {};
+
+function pointIcon(p) {
+  const n = Object.keys(p.species || {}).length;
+  const lv = Object.values(p.species || {});
+  const tone = lv.includes('high') ? 'hi' : lv.includes('low') ? '' : '';
+  const dim = filterSp && !(p.species || {})[filterSp] ? 'dim' : '';
+  const locked = p.source === 'gps' && !unlocked.has(p.id);
+  const size = 22;
+  return L.divIcon({
+    className: 'pt-icon',
+    html: `<span class="pt ${PIN[p.type]} ${tone} ${dim} ${p.id === selId ? 'sel' : ''} ${locked ? 'locked' : ''}"></span>${locked ? '<span class="pt-lock" title="GPS position locked"><svg viewBox="0 0 7 8" aria-hidden="true"><rect x="0.5" y="3.5" width="6" height="4" rx="1" fill="#1e3d47"/><path d="M1.8 3.6V2.4a1.7 1.7 0 0 1 3.4 0v1.2" fill="none" stroke="#1e3d47" stroke-width="1"/></svg></span>' : ''}${n > 1 ? `<b class="pt-badge">${n}</b>` : ''}`,
+    iconSize: [size, size], iconAnchor: [size / 2, size / 2],
+  });
+}
+function drawMarkers() {
+  markerLayer.clearLayers();
+  for (const k in markers) delete markers[k];
+  doc.points.forEach((p) => {
+    const locked = p.source === 'gps' && !unlocked.has(p.id);
+    const m = L.marker([p.lat, p.lng], { icon: pointIcon(p), draggable: !locked, keyboard: true, title: `${p.name} (${TYPE_NAME[p.type]})`, riseOnHover: true, zIndexOffset: p.id === selId ? 1000 : 0 });
+    m.on('click', () => select(p.id));
+    m.on('dragstart', () => {
+      commit(); const prev = selId; selId = p.id;
+      refreshIcons(p.id); renderList(); renderInspector();   // don't touch the marker being dragged
+    });
+    m.on('drag', (e) => { const ll = e.target.getLatLng(); showCoords(ll.lat, ll.lng); });
+    m.on('dragend', (e) => {
+      const ll = e.target.getLatLng(); p.lat = r6(ll.lat); p.lng = r6(ll.lng);
+      if (p.source !== 'gps') p.source = 'editor';
+      e.target.setIcon(pointIcon(p));
+      persist(); renderList(); renderInspector(); toast(`Moved to ${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`);
+    });
+    m.addTo(markerLayer); markers[p.id] = m;
+  });
+}
+function refreshIcons(skipId) {
+  doc.points.forEach((p) => {
+    const m = markers[p.id]; if (!m || p.id === skipId) return;
+    m.setIcon(pointIcon(p)); m.setZIndexOffset(p.id === selId ? 1000 : 0);
+  });
+}
+function drawRef() {
+  refLayer.clearLayers(); poolLayer.clearLayers();
+  REF.survey.forEach((s) => {
+    const m = L.marker([s.lat, s.lng], { icon: L.divIcon({ className: 'pt-icon', html: '<span class="ref-sq"></span>', iconSize: [14, 14] }), zIndexOffset: -1000, keyboard: false });
+    m.bindTooltip(s.name.replace(/ site /, ' '), { className: 'reflabel', direction: 'right', offset: [8, 0] });
+    const div = document.createElement('div');
+    div.innerHTML = `<strong>${esc(s.name)}</strong><br><span style="font-size:.85em">${s.lat.toFixed(5)}, ${s.lng.toFixed(5)}</span><br>`;
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Create a point here';
+    b.style.cssText = 'margin-top:.4rem;border:1px solid #c9d9dc;border-radius:5px;padding:.25rem .6rem;cursor:pointer;background:#fff';
+    b.addEventListener('click', () => { map.closePopup(); createPoint(s.lat, s.lng, { name: s.name, source: 'gps', type: /CTD/.test(s.name) ? 'trap' : 'video' }); });
+    div.appendChild(b); m.bindPopup(div); m.addTo(refLayer);
+  });
+  REF.pools.forEach((p) => {
+    L.circleMarker([p.lat, p.lng], { radius: 4, color: '#1c2a2e', weight: 1, fillColor: '#ffd23f', fillOpacity: 1 })
+      .bindTooltip(`Tide pool ${p.id}`, { className: 'reflabel' }).addTo(poolLayer);
+  });
+}
+$('#refSurvey').addEventListener('change', (e) => e.target.checked ? refLayer.addTo(map) : map.removeLayer(refLayer));
+$('#refPools').addEventListener('change', (e) => e.target.checked ? poolLayer.addTo(map) : map.removeLayer(poolLayer));
+
+// ---------- add mode ----------
+function setAdding(on) {
+  adding = on;
+  ['#addBtn', '#addBtn2'].forEach((b) => { $(b).setAttribute('aria-pressed', String(on)); $(b).textContent = on ? 'Tap the map… (Esc to cancel)' : '+ Add point'; });
+  $('#map').classList.toggle('adding', on); $('#hint').hidden = !on;
+}
+$('#addBtn').addEventListener('click', () => setAdding(!adding));
+$('#addBtn2').addEventListener('click', () => setAdding(!adding));
+map.on('click', (e) => { if (adding) { setAdding(false); createPoint(e.latlng.lat, e.latlng.lng, {}); } });
+let lastType = 'video';
+function createPoint(lat, lng, o) {
+  commit();
+  const base = slug(o.name || 'point');
+  let id = base, i = 2; while (doc.points.some((p) => p.id === id)) id = `${base}-${i++}`;
+  const p = { id, name: o.name || `New ${TYPE_NAME[o.type || lastType].toLowerCase()} point`, type: o.type || lastType, lat: r6(lat), lng: r6(lng), source: o.source || 'editor', species: {}, note: '' };
+  if (filterSp) p.species[filterSp] = LEVELS[p.type][0];
+  doc.points.push(p); persist(); selId = p.id; renderAll();
+  toast('Point added. Give it a name, type and species.');
+  setTimeout(() => { const n = $('#fName'); if (n) { n.focus(); n.select(); } }, 30);
+}
+
+// ---------- list ----------
+function renderList() {
+  const q = query.toLowerCase();
+  const pts = doc.points.filter((p) => !q || p.name.toLowerCase().includes(q) || Object.keys(p.species).some((s) => (doc.species[s] || s).toLowerCase().includes(q)))
+    .filter((p) => !filterSp || p.species[filterSp])
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  const origIds = new Map(original.points.map((p) => [p.id, JSON.stringify(p)]));
+  $('#list').innerHTML = pts.map((p) => {
+    const edited = origIds.get(p.id) !== JSON.stringify(p);
+    return `<li><button type="button" data-id="${esc(p.id)}" ${p.id === selId ? 'aria-current="true"' : ''}>
+      <span style="position:relative;width:14px;height:14px"><span class="pt ${PIN[p.type]} ${Object.values(p.species).includes('high') ? 'hi' : ''}" style="inset:1px"></span></span>
+      <span class="nm ${edited ? 'edited' : ''}">${esc(p.name)}</span><span class="n">${Object.keys(p.species).length}</span></button></li>`;
+  }).join('') || '<li style="padding:.8rem .9rem;color:var(--muted)">No points match.</li>';
+  const total = doc.points.length;
+  $('#count').textContent = pts.length === total ? `${total} points` : `${pts.length} of ${total} points`;
+}
+$('#list').addEventListener('click', (e) => { const b = e.target.closest('button[data-id]'); if (b) select(b.dataset.id, true); });
+$('#search').addEventListener('input', (e) => { query = e.target.value; renderList(); });
+function renderFilter() {
+  const sel = $('#spFilter');
+  const names = Object.entries(doc.species).sort((a, b) => a[1].localeCompare(b[1]));
+  sel.innerHTML = '<option value="">All species</option>' + names.map(([k, v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join('');
+  sel.value = doc.species[filterSp] ? filterSp : ''; filterSp = sel.value;
+}
+$('#spFilter').addEventListener('change', (e) => { filterSp = e.target.value; renderList(); drawMarkers(); });
+
+// ---------- inspector ----------
+function select(id, pan) {
+  selId = id; renderList(); refreshIcons(); renderInspector();
+  const p = doc.points.find((x) => x.id === id);
+  if (p && pan && !map.getBounds().pad(-0.1).contains([p.lat, p.lng])) map.panTo([p.lat, p.lng]);
+}
+function showCoords(lat, lng) {
+  const a = $('#fLat'), b = $('#fLng'); if (a && b) { a.value = lat.toFixed(6); b.value = lng.toFixed(6); }
+}
+function renderInspector() {
+  const box = $('#insp');
+  const p = doc.points.find((x) => x.id === selId);
+  if (!p) {
+    box.innerHTML = `<div class="empty"><h2>No point selected</h2><p>Select a marker or a point in the list to edit it.</p>
+      <ol><li><strong>Add</strong>: press “Add point”, then click the map.</li><li><strong>Move</strong>: drag a marker. Coordinates are recorded as you drop it.</li>
+      <li><strong>Survey sites</strong> (white squares) have exact GPS; click one to create a point on it.</li>
+      <li><strong>Export</strong> <code>points.json</code> and replace the file on the website to publish your changes.</li></ol></div>`;
+    return;
+  }
+  const locked = p.source === 'gps' && !unlocked.has(p.id);
+  const levels = LEVELS[p.type];
+  const spRows = Object.entries(doc.species).sort((a, b) => a[1].localeCompare(b[1])).map(([k, v]) => {
+    const cur = p.species[k] || '';
+    return `<div class="sp-row ${cur ? 'on' : ''}"><span>${esc(v)}</span><select data-sp="${esc(k)}" aria-label="${esc(v)}">
+      <option value="">—</option>${levels.map((l) => `<option value="${l}" ${cur === l ? 'selected' : ''}>${LEVEL_NAME[l]}</option>`).join('')}
+      ${cur && !levels.includes(cur) ? `<option value="${cur}" selected>${LEVEL_NAME[cur]}</option>` : ''}</select></div>`;
+  }).join('');
+  box.innerHTML = `
+    <label class="field"><span>Name</span><input type="text" id="fName" value="${esc(p.name)}"></label>
+    <fieldset class="field"><legend>Type</legend><div class="types">${TYPES.map((t) =>
+      `<button type="button" data-type="${t}" aria-pressed="${p.type === t}"><span class="g"><span class="pt ${PIN[t]} hi" style="inset:1px"></span></span>${TYPE_NAME[t]}</button>`).join('')}</div></fieldset>
+    <div class="field"><span>Position</span>
+      <div class="coords"><label>Latitude<input type="number" step="0.000001" id="fLat" value="${p.lat.toFixed(6)}" ${locked ? 'readonly' : ''}></label>
+      <label>Longitude<input type="number" step="0.000001" id="fLng" value="${p.lng.toFixed(6)}" ${locked ? 'readonly' : ''}></label></div>
+      <div class="src"><span>${esc(SOURCE_NAME[p.source] || p.source)}</span>${p.source === 'gps' ? `<button type="button" id="fLock">${locked ? 'Unlock to move' : 'Lock position'}</button>` : ''}</div>
+    </div>
+    <div class="field"><span>Species at this point</span><div class="sp-table" id="spTable">${spRows}</div>
+      <div class="addsp"><input type="text" id="newSp" placeholder="Add a species not listed" aria-label="New species name"><button type="button" id="newSpBtn">Add</button></div></div>
+    <label class="field"><span>Note</span><textarea id="fNote" placeholder="Optional, shown in the site popup">${esc(p.note)}</textarea></label>
+    <div class="actions"><button type="button" id="fDup">Duplicate</button><button type="button" id="fCenter">Center map</button><button type="button" class="danger" id="fDel">Delete point</button></div>`;
+  const upd = (fn, redraw = true) => { commit(); fn(); persist(); renderList(); if (redraw) drawMarkers(); };
+  $('#fName').addEventListener('change', (e) => upd(() => { p.name = e.target.value.trim() || 'Unnamed point'; }));
+  box.querySelectorAll('[data-type]').forEach((b) => b.addEventListener('click', () => {
+    upd(() => {
+      p.type = b.dataset.type; lastType = p.type;
+      for (const s in p.species) if (!LEVELS[p.type].includes(p.species[s])) p.species[s] = LEVELS[p.type][0];
+    }); renderInspector();
+  }));
+  const setPos = () => {
+    const la = parseFloat($('#fLat').value), lo = parseFloat($('#fLng').value);
+    if (!isFinite(la) || !isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180) { toast('Enter a valid latitude and longitude'); renderInspector(); return; }
+    upd(() => { p.lat = r6(la); p.lng = r6(lo); if (p.source !== 'gps') p.source = 'editor'; }); map.panTo([p.lat, p.lng]);
+  };
+  $('#fLat').addEventListener('change', setPos); $('#fLng').addEventListener('change', setPos);
+  const lk = $('#fLock'); if (lk) lk.addEventListener('click', () => { unlocked.has(p.id) ? unlocked.delete(p.id) : unlocked.add(p.id); drawMarkers(); renderInspector(); });
+  box.querySelectorAll('select[data-sp]').forEach((s) => s.addEventListener('change', () => {
+    upd(() => { if (s.value) p.species[s.dataset.sp] = s.value; else delete p.species[s.dataset.sp]; });
+    s.closest('.sp-row').classList.toggle('on', !!s.value);
+  }));
+  const addSp = () => {
+    const name = $('#newSp').value.trim(); if (!name) return;
+    const key = slug(name);
+    upd(() => { if (!doc.species[key]) doc.species[key] = name; p.species[key] = LEVELS[p.type][0]; });
+    renderFilter(); renderInspector(); toast(`Added ${name}`);
+  };
+  $('#newSpBtn').addEventListener('click', addSp);
+  $('#newSp').addEventListener('keydown', (e) => { if (e.key === 'Enter') addSp(); });
+  $('#fNote').addEventListener('change', (e) => upd(() => { p.note = e.target.value.trim(); }, false));
+  $('#fCenter').addEventListener('click', () => map.setView([p.lat, p.lng], Math.max(map.getZoom(), 17)));
+  $('#fDup').addEventListener('click', () => {
+    const src = clone(p); createPoint(p.lat - 0.0002, p.lng + 0.0003, { name: src.name + ' (copy)', type: src.type });
+    const np = doc.points.find((x) => x.id === selId); np.species = src.species; np.note = src.note; persist(); renderAll();
+  });
+  $('#fDel').addEventListener('click', () => deletePoint(p.id));
+}
+function deletePoint(id) {
+  const p = doc.points.find((x) => x.id === id); if (!p) return;
+  if (!confirm(`Delete “${p.name}”? You can undo this.`)) return;
+  commit(); doc.points = doc.points.filter((x) => x.id !== id); selId = null; persist(); renderAll(); toast('Point deleted · Undo to restore');
+}
+
+// ---------- import / export ----------
+function toCSV(d) {
+  const q = (v) => { const s = String(v ?? ''); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const rows = [['id', 'name', 'type', 'latitude', 'longitude', 'source', 'species_id', 'species', 'level', 'note']];
+  d.points.forEach((p) => {
+    const sp = Object.entries(p.species || {});
+    if (!sp.length) rows.push([p.id, p.name, p.type, p.lat, p.lng, p.source, '', '', '', p.note]);
+    sp.forEach(([k, l]) => rows.push([p.id, p.name, p.type, p.lat, p.lng, p.source, k, d.species[k] || k, l, p.note]));
+  });
+  return rows.map((r) => r.map(q).join(',')).join('\n') + '\n';
+}
+function parseCSV(text) {
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"' && text[i + 1] === '"') { f += '"'; i++; } else if (c === '"') q = false; else f += c; }
+    else if (c === '"') q = true; else if (c === ',') { row.push(f); f = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+    else f += c;
+  }
+  if (f || row.length) { row.push(f); rows.push(row); }
+  const h = rows.shift().map((x) => x.trim());
+  const col = (n) => h.indexOf(n);
+  if (col('latitude') < 0 || col('longitude') < 0 || col('type') < 0) throw new Error('This CSV is missing latitude, longitude or type columns.');
+  const d = { ...clone(doc), species: clone(doc.species), points: [] }; const byId = {};
+  rows.filter((r) => r.length > 1).forEach((r) => {
+    const g = (n) => (col(n) >= 0 ? r[col(n)] : '').trim();
+    const id = g('id') || slug(g('name') || 'point');
+    let p = byId[id];
+    if (!p) {
+      const lat = parseFloat(g('latitude')), lng = parseFloat(g('longitude'));
+      if (!isFinite(lat) || !isFinite(lng)) return;
+      p = byId[id] = { id, name: g('name') || id, type: TYPES.includes(g('type')) ? g('type') : 'video', lat: r6(lat), lng: r6(lng), source: g('source') || 'editor', species: {}, note: g('note') };
+      d.points.push(p);
+    }
+    const sid = g('species_id') || (g('species') ? slug(g('species')) : '');
+    if (sid) { p.species[sid] = ['high', 'low', 'present'].includes(g('level')) ? g('level') : LEVELS[p.type][0]; if (!d.species[sid]) d.species[sid] = g('species') || sid; }
+  });
+  return d;
+}
+function importText(text) {
+  text = text.trim(); if (!text) throw new Error('Nothing to import.');
+  let d;
+  if (text.startsWith('{')) { d = JSON.parse(text); if (!valid(d)) throw new Error('This JSON is not a Fintastic Fish points file.'); }
+  else d = parseCSV(text);
+  if (!d.points.length) throw new Error('No points found in that file.');
+  commit(); doc = d; selId = null; persist(); renderFilter(); renderAll(); toast(`Imported ${d.points.length} points`);
+}
+const downloadsP = (window.claude && typeof window.claude.use === 'function') ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+async function saveFile(name, text, mime) {
+  if (!SITE_MODE && window.claude) toast('Preparing download…');
+  const dl = await downloadsP;
+  if (dl) {
+    try { await dl.save({ filename: name, data: text }); toast(`Saved ${name}`); }
+    catch (e) { toast(e && e.code === 'declined' ? 'Download cancelled' : `Could not save the file (${(e && e.code) || 'error'}). Use “Show as text” instead.`); }
+    return;
+  }
+  if (SITE_MODE || !window.claude) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: mime })); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast(`Downloaded ${name}`);
+    return;
+  }
+  showText(text, `Downloads aren't available here. Copy this text and save it as ${name}.`);
+}
+function exportDoc() { const d = clone(doc); d.exported = new Date().toISOString(); return JSON.stringify(d, null, 1) + '\n'; }
+function showText(text, note) {
+  $('#txArea').value = text; $('#txNote').textContent = note || 'Select all and copy, then save it as points.json.';
+  $('#textDlg').showModal(); $('#txArea').focus(); $('#txArea').select();
+}
+$('#exportBtn').addEventListener('click', () => $('#exportDlg').showModal());
+$('#exportDlg').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-ex]'); if (!b) return;
+  $('#exportDlg').close();
+  if (b.dataset.ex === 'json') saveFile('points.json', exportDoc(), 'application/json');
+  if (b.dataset.ex === 'csv') saveFile('sightings.csv', toCSV(doc), 'text/csv');
+  if (b.dataset.ex === 'copy') showText(exportDoc());
+});
+$('#txCopy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('#txArea').value); toast('Copied'); }
+  catch (e) { $('#txArea').select(); toast('Press Ctrl+C (or ⌘C) to copy the selected text'); }
+});
+$('#importBtn').addEventListener('click', () => { $('#imText').value = ''; $('#imFile').value = ''; $('#importDlg').showModal(); });
+$('#imFile').addEventListener('change', async (e) => { const f = e.target.files[0]; if (f) $('#imText').value = await f.text(); });
+$('#imGo').addEventListener('click', () => {
+  try { importText($('#imText').value); $('#importDlg').close(); } catch (err) { toast(err.message || 'Could not read that file'); }
+});
+document.querySelectorAll('dialog [data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+$('#undoBtn').addEventListener('click', undo);
+$('#discardBtn').addEventListener('click', () => {
+  if (!confirm('Discard your edits in this browser and reload the guide\'s points?')) return;
+  commit(); doc = clone(original); selId = null; persist(); renderFilter(); renderAll(); $('#restoreBar').hidden = true; toast('Reset to the guide\'s points · Undo to go back');
+});
+document.addEventListener('keydown', (e) => {
+  const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if (e.key === 'Escape' && adding) setAdding(false);
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !typing) { e.preventDefault(); undo(); }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && selId && !typing && !document.querySelector('dialog[open]')) { e.preventDefault(); deletePoint(selId); }
+});
+
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2600); }
+function renderAll() { renderList(); drawMarkers(); renderInspector(); }
+
+// ---------- start ----------
+async function start() {
+  let base = EMBEDDED;
+  if (SITE_MODE) {
+    try { const r = await fetch('points.json', { cache: 'no-cache' }); if (r.ok) { const d = await r.json(); if (valid(d)) base = d; } } catch (e) { /* use embedded copy */ }
+  }
+  original = clone(base);
+  const stored = loadStored();
+  const differs = stored && JSON.stringify(stored.points) !== JSON.stringify(base.points);
+  if (differs && (stored.revision || '') === (base.revision || '')) { doc = stored; $('#restoreBar').hidden = false; }
+  else if (differs) {
+    // the guide's points were updated since this browser last saved: start from the update, offer the old edits
+    doc = clone(base);
+    $('#restoreMsg').textContent = 'The guide\'s points were updated (offshore bait-fishing spots realigned). Earlier edits from this browser are kept aside.';
+    $('#discardBtn').hidden = true; $('#keepOldBtn').hidden = false; $('#restoreBar').hidden = false;
+    $('#keepOldBtn').addEventListener('click', () => {
+      if (!confirm('Replace the updated points with your earlier edits? The old edits still have the previous offshore positions.')) return;
+      commit(); doc = stored; doc.revision = base.revision; persist(); renderFilter(); renderAll(); $('#restoreBar').hidden = true; toast('Earlier edits restored · Undo to go back');
+    });
+  }
+  else doc = clone(base);
+  $('#undoBtn').disabled = true;
+  setBase('guide'); drawRef(); renderFilter(); renderAll(); persist();
+  map.fitBounds(VIEWS['Appledore']);
+}
+start();
+</script>
+</body>
+</html>

@@ -1,95 +1,95 @@
-site_id,site_name,method,latitude,longitude,position,species,detail
-ruvs-1a,RUVS site 1A,Underwater video (RUVS),42.985412,-70.619865,surveyed GPS,Atlantic Cod,dot-hi
-ruvs-1a,RUVS site 1A,Underwater video (RUVS),42.985412,-70.619865,surveyed GPS,Atlantic Pollock,dot-lo
-ruvs-1a,RUVS site 1A,Underwater video (RUVS),42.985412,-70.619865,surveyed GPS,Cunner,dot-lo
-ruvs-2a,RUVS site 2A,Underwater video (RUVS),42.988339,-70.617961,surveyed GPS,Atlantic Cod,dot-hi
-ruvs-2a,RUVS site 2A,Underwater video (RUVS),42.988339,-70.617961,surveyed GPS,Atlantic Pollock,dot-lo
-ruvs-2a,RUVS site 2A,Underwater video (RUVS),42.988339,-70.617961,surveyed GPS,Cunner,dot-lo
-ruvs-2b,RUVS site 2B,Underwater video (RUVS),42.988518,-70.620651,surveyed GPS,Atlantic Cod,dot-hi
-ruvs-2b,RUVS site 2B,Underwater video (RUVS),42.988518,-70.620651,surveyed GPS,Cunner,dot-lo
-ruvs-5a,RUVS site 5A,Underwater video (RUVS),42.990495,-70.611144,surveyed GPS,Atlantic Cod,dot-hi
-ruvs-5a,RUVS site 5A,Underwater video (RUVS),42.990495,-70.611144,surveyed GPS,Atlantic Pollock,dot-hi
-ruvs-5a,RUVS site 5A,Underwater video (RUVS),42.990495,-70.611144,surveyed GPS,Cunner,dot-lo
-ruvs-5a,RUVS site 5A,Underwater video (RUVS),42.990495,-70.611144,surveyed GPS,Rock Gunnel,dot-hi
-ruvs-5a,RUVS site 5A,Underwater video (RUVS),42.990495,-70.611144,surveyed GPS,Winter Flounder,dot-lo
-ruvs-4a,RUVS site 4A,Underwater video (RUVS),42.992913,-70.61334,surveyed GPS,Atlantic Cod,dot-lo
-ruvs-4a,RUVS site 4A,Underwater video (RUVS),42.992913,-70.61334,surveyed GPS,Atlantic Pollock,dot-hi
-ruvs-4a,RUVS site 4A,Underwater video (RUVS),42.992913,-70.61334,surveyed GPS,Cunner,dot-lo
-ruvs-4a,RUVS site 4A,Underwater video (RUVS),42.992913,-70.61334,surveyed GPS,Rock Gunnel,dot-lo
-ruvs-4b,RUVS site 4B,Underwater video (RUVS),42.993688,-70.610872,surveyed GPS,Atlantic Cod,dot-lo
-ruvs-4b,RUVS site 4B,Underwater video (RUVS),42.993688,-70.610872,surveyed GPS,Atlantic Pollock,dot-hi
-ruvs-4b,RUVS site 4B,Underwater video (RUVS),42.993688,-70.610872,surveyed GPS,Cunner,dot-hi
-ruvs-4b,RUVS site 4B,Underwater video (RUVS),42.993688,-70.610872,surveyed GPS,Winter Flounder,dot-hi
-ruvs-malaga,RUVS site Malaga,Underwater video (RUVS),42.983357,-70.612413,surveyed GPS,Atlantic Cod,dot-hi
-ruvs-malaga,RUVS site Malaga,Underwater video (RUVS),42.983357,-70.612413,surveyed GPS,Atlantic Pollock,dot-hi
-ruvs-malaga,RUVS site Malaga,Underwater video (RUVS),42.983357,-70.612413,surveyed GPS,Cunner,dot-lo
-ruvs-malaga,RUVS site Malaga,Underwater video (RUVS),42.983357,-70.612413,surveyed GPS,Winter Flounder,dot-hi
-ruvs-6a,RUVS site 6A,Underwater video (RUVS),42.986428,-70.609416,surveyed GPS,Atlantic Cod,dot-hi
-ruvs-6a,RUVS site 6A,Underwater video (RUVS),42.986428,-70.609416,surveyed GPS,Atlantic Pollock,dot-hi
-ruvs-6a,RUVS site 6A,Underwater video (RUVS),42.986428,-70.609416,surveyed GPS,Cunner,dot-lo
-ruvs-6b,RUVS site 6B,Underwater video (RUVS),42.985264,-70.60771,surveyed GPS,Atlantic Cod,dot-lo
-ruvs-6b,RUVS site 6B,Underwater video (RUVS),42.985264,-70.60771,surveyed GPS,Cunner,dot-hi
-ruvs-7a,RUVS site 7A,Underwater video (RUVS),42.984568,-70.603535,surveyed GPS,Atlantic Cod,dot-lo
-ruvs-7a,RUVS site 7A,Underwater video (RUVS),42.984568,-70.603535,surveyed GPS,Atlantic Pollock,dot-hi
-ruvs-7a,RUVS site 7A,Underwater video (RUVS),42.984568,-70.603535,surveyed GPS,Cunner,dot-lo
-appledore-11,Rod and reel spot,Rod and reel,42.994535,-70.61238,estimated from guide map (~50 m),Atlantic Cod,rod
-new-castle-1,Trap or seine site,Trap or seine,43.067059,-70.711701,estimated from guide map (~50 m),Atlantic Pollock,dia-hi
-new-castle-1,Trap or seine site,Trap or seine,43.067059,-70.711701,estimated from guide map (~50 m),Winter Flounder,dia-hi
-new-castle-1,Trap or seine site,Trap or seine,43.067059,-70.711701,estimated from guide map (~50 m),Atlantic Herring,dia-hi
-new-castle-1,Trap or seine site,Trap or seine,43.067059,-70.711701,estimated from guide map (~50 m),Rainbow Smelt,dia-hi
-new-castle-1,Trap or seine site,Trap or seine,43.067059,-70.711701,estimated from guide map (~50 m),Sandlance,dia-hi
-new-castle-1,Trap or seine site,Trap or seine,43.067059,-70.711701,estimated from guide map (~50 m),Atlantic Tomcod,dia-hi
-ruvs-3a,RUVS site 3A,Underwater video (RUVS),42.992456,-70.618347,surveyed GPS,Cunner,dot-hi
-ruvs-3a,RUVS site 3A,Underwater video (RUVS),42.992456,-70.618347,surveyed GPS,Winter Flounder,dot-lo
-appledore-13,Rod and reel spot,Rod and reel,42.987405,-70.617669,estimated from guide map (~50 m),Cunner,rod
-appledore-14,Trap or seine site,Trap or seine,42.994278,-70.612453,estimated from guide map (~50 m),Cunner,dia-hi
-appledore-15,Trap or seine site,Trap or seine,42.983434,-70.604672,estimated from guide map (~50 m),Cunner,dia-lo
-appledore-16,Trap or seine site,Trap or seine,42.989117,-70.61851,estimated from guide map (~50 m),Cunner,dia-lo
-appledore-17,Trap or seine site,Trap or seine,42.990191,-70.617274,estimated from guide map (~50 m),Rock Gunnel,dia-hi
-appledore-17,Trap or seine site,Trap or seine,42.990191,-70.617274,estimated from guide map (~50 m),Mummichog,dia-hi
-appledore-19,Trap or seine site,Trap or seine,42.984839,-70.618275,estimated from guide map (~50 m),Rock Gunnel,dia-lo
-appledore-20,Trap or seine site,Trap or seine,42.989452,-70.612995,estimated from guide map (~50 m),Rock Gunnel,dia-lo
-appledore-21,Trap or seine site,Trap or seine,42.9918,-70.616705,estimated from guide map (~50 m),Mummichog,dia-hi
-appledore-22,Trap or seine site,Trap or seine,42.982403,-70.607974,estimated from guide map (~50 m),Mummichog,dia-lo
-appledore-23,Trap or seine site,Trap or seine,42.982854,-70.604091,estimated from guide map (~50 m),Mummichog,dia-hi
-smuttynose-star-1,Trap or seine site,Trap or seine,42.980919,-70.611721,estimated from guide map (~50 m),Mummichog,dia-hi
-smuttynose-star-2,Trap or seine site,Trap or seine,42.976884,-70.612692,estimated from guide map (~50 m),Mummichog,dia-hi
-smuttynose-star-3,Rod and reel spot,Rod and reel,42.984014,-70.606533,estimated from guide map (~50 m),Atlantic Mackerel,rod
-smuttynose-star-4,Rod and reel spot,Rod and reel,42.971061,-70.61494,estimated from guide map (~50 m),Atlantic Mackerel,rod
-smuttynose-star-5,Rod and reel spot,Rod and reel,42.971426,-70.613638,estimated from guide map (~50 m),Atlantic Mackerel,rod
-smuttynose-star-6,Rod and reel spot,Rod and reel,42.970697,-70.613044,estimated from guide map (~50 m),Atlantic Mackerel,rod
-new-castle-2,Trap or seine site,Trap or seine,43.065617,-70.698372,estimated from guide map (~50 m),Sandlance,dia-lo
-new-castle-3,Trap or seine site,Trap or seine,43.077033,-70.69953,estimated from guide map (~50 m),Sandlance,dia-lo
-offshore-1,Bait-fishing spot,Bait fishing,42.975742,-70.591055,estimated from guide map (~50 m),Atlantic Cod,bait
-offshore-1,Bait-fishing spot,Bait fishing,42.975742,-70.591055,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-2,Bait-fishing spot,Bait fishing,42.972075,-70.610209,estimated from guide map (~50 m),Atlantic Cod,bait
-offshore-2,Bait-fishing spot,Bait fishing,42.972075,-70.610209,estimated from guide map (~50 m),Atlantic Pollock,bait
-offshore-2,Bait-fishing spot,Bait fishing,42.972075,-70.610209,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-2,Bait-fishing spot,Bait fishing,42.972075,-70.610209,estimated from guide map (~50 m),Rockfish,bait
-offshore-3,Bait-fishing spot,Bait fishing,42.971025,-70.613091,estimated from guide map (~50 m),Atlantic Cod,bait
-offshore-3,Bait-fishing spot,Bait fishing,42.971025,-70.613091,estimated from guide map (~50 m),Atlantic Pollock,bait
-offshore-3,Bait-fishing spot,Bait fishing,42.971025,-70.613091,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-4,Bait-fishing spot,Bait fishing,42.964161,-70.602933,estimated from guide map (~50 m),Atlantic Cod,bait
-offshore-4,Bait-fishing spot,Bait fishing,42.964161,-70.602933,estimated from guide map (~50 m),Atlantic Pollock,bait
-offshore-5,Bait-fishing spot,Bait fishing,42.961667,-70.568223,estimated from guide map (~50 m),Atlantic Cod,bait
-offshore-6,Bait-fishing spot,Bait fishing,42.961589,-70.566865,estimated from guide map (~50 m),Atlantic Cod,bait
-offshore-7,Bait-fishing spot,Bait fishing,42.971916,-70.610492,estimated from guide map (~50 m),Atlantic Pollock,bait
-offshore-7,Bait-fishing spot,Bait fishing,42.971916,-70.610492,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-8,Bait-fishing spot,Bait fishing,42.970609,-70.612568,estimated from guide map (~50 m),Atlantic Pollock,bait
-offshore-8,Bait-fishing spot,Bait fishing,42.970609,-70.612568,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-9,Bait-fishing spot,Bait fishing,42.970831,-70.60079,estimated from guide map (~50 m),Atlantic Pollock,bait
-offshore-10,Bait-fishing spot,Bait fishing,42.965688,-70.619659,estimated from guide map (~50 m),Atlantic Pollock,bait
-offshore-10,Bait-fishing spot,Bait fishing,42.965688,-70.619659,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-11,Bait-fishing spot,Bait fishing,42.962398,-70.601184,estimated from guide map (~50 m),Atlantic Pollock,bait
-offshore-11,Bait-fishing spot,Bait fishing,42.962398,-70.601184,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-11,Bait-fishing spot,Bait fishing,42.962398,-70.601184,estimated from guide map (~50 m),Rockfish,bait
-offshore-12,Bait-fishing spot,Bait fishing,42.96222,-70.604374,estimated from guide map (~50 m),Atlantic Pollock,bait
-offshore-12,Bait-fishing spot,Bait fishing,42.96222,-70.604374,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-13,Bait-fishing spot,Bait fishing,42.996407,-70.616447,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-14,Bait-fishing spot,Bait fishing,42.992825,-70.610156,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-15,Bait-fishing spot,Bait fishing,42.978491,-70.611145,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-16,Bait-fishing spot,Bait fishing,42.971407,-70.625213,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-17,Bait-fishing spot,Bait fishing,42.970227,-70.61088,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-18,Bait-fishing spot,Bait fishing,42.971313,-70.613186,estimated from guide map (~50 m),Atlantic Mackerel,bait
-offshore-19,Bait-fishing spot,Bait fishing,42.970337,-70.6114,estimated from guide map (~50 m),Atlantic Mackerel,bait
-bait-sculpin,Bait-fishing spot,Bait fishing,42.972967,-70.601633,surveyed GPS,Sculpin,bait
+id,name,type,latitude,longitude,source,species_id,species,level,note
+ruvs-1a,RUVS site 1A,video,42.985412,-70.619865,gps,atlantic-cod,Atlantic Cod,high,
+ruvs-1a,RUVS site 1A,video,42.985412,-70.619865,gps,atlantic-pollock,Atlantic Pollock,low,
+ruvs-1a,RUVS site 1A,video,42.985412,-70.619865,gps,cunner,Cunner,low,
+ruvs-2a,RUVS site 2A,video,42.988339,-70.617961,gps,atlantic-cod,Atlantic Cod,high,
+ruvs-2a,RUVS site 2A,video,42.988339,-70.617961,gps,atlantic-pollock,Atlantic Pollock,low,
+ruvs-2a,RUVS site 2A,video,42.988339,-70.617961,gps,cunner,Cunner,low,
+ruvs-2b,RUVS site 2B,video,42.988518,-70.620651,gps,atlantic-cod,Atlantic Cod,high,
+ruvs-2b,RUVS site 2B,video,42.988518,-70.620651,gps,cunner,Cunner,low,
+ruvs-5a,RUVS site 5A,video,42.990495,-70.611144,gps,atlantic-cod,Atlantic Cod,high,
+ruvs-5a,RUVS site 5A,video,42.990495,-70.611144,gps,atlantic-pollock,Atlantic Pollock,high,
+ruvs-5a,RUVS site 5A,video,42.990495,-70.611144,gps,cunner,Cunner,low,
+ruvs-5a,RUVS site 5A,video,42.990495,-70.611144,gps,rock-gunnel,Rock Gunnel,high,
+ruvs-5a,RUVS site 5A,video,42.990495,-70.611144,gps,winter-flounder,Winter Flounder,low,
+ruvs-4a,RUVS site 4A,video,42.992913,-70.61334,gps,atlantic-cod,Atlantic Cod,low,
+ruvs-4a,RUVS site 4A,video,42.992913,-70.61334,gps,atlantic-pollock,Atlantic Pollock,high,
+ruvs-4a,RUVS site 4A,video,42.992913,-70.61334,gps,cunner,Cunner,low,
+ruvs-4a,RUVS site 4A,video,42.992913,-70.61334,gps,rock-gunnel,Rock Gunnel,low,
+ruvs-4b,RUVS site 4B,video,42.993688,-70.610872,gps,atlantic-cod,Atlantic Cod,low,
+ruvs-4b,RUVS site 4B,video,42.993688,-70.610872,gps,atlantic-pollock,Atlantic Pollock,high,
+ruvs-4b,RUVS site 4B,video,42.993688,-70.610872,gps,cunner,Cunner,high,
+ruvs-4b,RUVS site 4B,video,42.993688,-70.610872,gps,winter-flounder,Winter Flounder,high,
+ruvs-malaga,RUVS site Malaga,video,42.983357,-70.612413,gps,atlantic-cod,Atlantic Cod,high,
+ruvs-malaga,RUVS site Malaga,video,42.983357,-70.612413,gps,atlantic-pollock,Atlantic Pollock,high,
+ruvs-malaga,RUVS site Malaga,video,42.983357,-70.612413,gps,cunner,Cunner,low,
+ruvs-malaga,RUVS site Malaga,video,42.983357,-70.612413,gps,winter-flounder,Winter Flounder,high,
+ruvs-6a,RUVS site 6A,video,42.986428,-70.609416,gps,atlantic-cod,Atlantic Cod,high,
+ruvs-6a,RUVS site 6A,video,42.986428,-70.609416,gps,atlantic-pollock,Atlantic Pollock,high,
+ruvs-6a,RUVS site 6A,video,42.986428,-70.609416,gps,cunner,Cunner,low,
+ruvs-6b,RUVS site 6B,video,42.985264,-70.60771,gps,atlantic-cod,Atlantic Cod,low,
+ruvs-6b,RUVS site 6B,video,42.985264,-70.60771,gps,cunner,Cunner,high,
+ruvs-7a,RUVS site 7A,video,42.984568,-70.603535,gps,atlantic-cod,Atlantic Cod,low,
+ruvs-7a,RUVS site 7A,video,42.984568,-70.603535,gps,atlantic-pollock,Atlantic Pollock,high,
+ruvs-7a,RUVS site 7A,video,42.984568,-70.603535,gps,cunner,Cunner,low,
+appledore-11,Appledore rod & reel spot 1,rod,42.994535,-70.61238,guide-map,atlantic-cod,Atlantic Cod,present,
+new-castle-1,New Castle trap/seine site 2,trap,43.067059,-70.711701,guide-map,atlantic-herring,Atlantic Herring,high,
+new-castle-1,New Castle trap/seine site 2,trap,43.067059,-70.711701,guide-map,atlantic-pollock,Atlantic Pollock,high,
+new-castle-1,New Castle trap/seine site 2,trap,43.067059,-70.711701,guide-map,atlantic-tomcod,Atlantic Tomcod,high,
+new-castle-1,New Castle trap/seine site 2,trap,43.067059,-70.711701,guide-map,rainbow-smelt,Rainbow Smelt,high,
+new-castle-1,New Castle trap/seine site 2,trap,43.067059,-70.711701,guide-map,sandlance,Sandlance,high,
+new-castle-1,New Castle trap/seine site 2,trap,43.067059,-70.711701,guide-map,winter-flounder,Winter Flounder,high,
+ruvs-3a,RUVS site 3A,video,42.992456,-70.618347,gps,cunner,Cunner,high,
+ruvs-3a,RUVS site 3A,video,42.992456,-70.618347,gps,winter-flounder,Winter Flounder,low,
+appledore-13,Appledore rod & reel spot 2,rod,42.987405,-70.617669,guide-map,cunner,Cunner,present,
+appledore-14,Appledore trap/seine site 1,trap,42.994278,-70.612453,guide-map,cunner,Cunner,high,
+appledore-15,Appledore trap/seine site 7,trap,42.983434,-70.604672,guide-map,cunner,Cunner,low,
+appledore-16,Appledore trap/seine site 5,trap,42.989117,-70.61851,guide-map,cunner,Cunner,low,
+appledore-17,Appledore trap/seine site 3,trap,42.990191,-70.617274,guide-map,mummichog,Mummichog,high,
+appledore-17,Appledore trap/seine site 3,trap,42.990191,-70.617274,guide-map,rock-gunnel,Rock Gunnel,high,
+appledore-19,Appledore trap/seine site 6,trap,42.984839,-70.618275,guide-map,rock-gunnel,Rock Gunnel,low,
+appledore-20,Appledore trap/seine site 4,trap,42.989452,-70.612995,guide-map,rock-gunnel,Rock Gunnel,low,
+appledore-21,Appledore trap/seine site 2,trap,42.9918,-70.616705,guide-map,mummichog,Mummichog,high,
+appledore-22,Appledore trap/seine site 9,trap,42.982403,-70.607974,guide-map,mummichog,Mummichog,low,
+appledore-23,Appledore trap/seine site 8,trap,42.982854,-70.604091,guide-map,mummichog,Mummichog,high,
+smuttynose-star-1,Smuttynose & Star trap/seine site 1,trap,42.980919,-70.611721,guide-map,mummichog,Mummichog,high,
+smuttynose-star-2,Smuttynose & Star trap/seine site 2,trap,42.976884,-70.612692,guide-map,mummichog,Mummichog,high,
+smuttynose-star-3,Smuttynose & Star rod & reel spot 1,rod,42.984014,-70.606533,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+smuttynose-star-4,Smuttynose & Star rod & reel spot 3,rod,42.971061,-70.61494,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+smuttynose-star-5,Smuttynose & Star rod & reel spot 2,rod,42.971426,-70.613638,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+smuttynose-star-6,Smuttynose & Star rod & reel spot 4,rod,42.970697,-70.613044,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+new-castle-2,New Castle trap/seine site 3,trap,43.065617,-70.698372,guide-map,sandlance,Sandlance,low,
+new-castle-3,New Castle trap/seine site 1,trap,43.077033,-70.69953,guide-map,sandlance,Sandlance,low,
+offshore-1,Offshore bait-fishing spot 4,bait,42.975614,-70.592617,guide-map,atlantic-cod,Atlantic Cod,present,
+offshore-1,Offshore bait-fishing spot 4,bait,42.975614,-70.592617,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-2,Offshore bait-fishing spot 5,bait,42.971466,-70.61167,guide-map,atlantic-cod,Atlantic Cod,present,
+offshore-2,Offshore bait-fishing spot 5,bait,42.971466,-70.61167,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-2,Offshore bait-fishing spot 5,bait,42.971466,-70.61167,guide-map,atlantic-pollock,Atlantic Pollock,present,
+offshore-2,Offshore bait-fishing spot 5,bait,42.971466,-70.61167,guide-map,rockfish,Rockfish,present,
+offshore-3,Offshore bait-fishing spot 9,bait,42.970364,-70.614973,guide-map,atlantic-cod,Atlantic Cod,present,
+offshore-3,Offshore bait-fishing spot 9,bait,42.970364,-70.614973,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-3,Offshore bait-fishing spot 9,bait,42.970364,-70.614973,guide-map,atlantic-pollock,Atlantic Pollock,present,
+offshore-4,Offshore bait-fishing spot 15,bait,42.964131,-70.603618,guide-map,atlantic-cod,Atlantic Cod,present,
+offshore-4,Offshore bait-fishing spot 15,bait,42.964131,-70.603618,guide-map,atlantic-pollock,Atlantic Pollock,present,
+offshore-5,Offshore bait-fishing spot 18,bait,42.961589,-70.571384,guide-map,atlantic-cod,Atlantic Cod,present,
+offshore-6,Offshore bait-fishing spot 19,bait,42.961508,-70.570125,guide-map,atlantic-cod,Atlantic Cod,present,
+offshore-7,Offshore bait-fishing spot 6,bait,42.9713,-70.612002,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-7,Offshore bait-fishing spot 6,bait,42.9713,-70.612002,guide-map,atlantic-pollock,Atlantic Pollock,present,
+offshore-8,Offshore bait-fishing spot 11,bait,42.969939,-70.614425,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-8,Offshore bait-fishing spot 11,bait,42.969939,-70.614425,guide-map,atlantic-pollock,Atlantic Pollock,present,
+offshore-9,Offshore bait-fishing spot 10,bait,42.970455,-70.601441,guide-map,atlantic-pollock,Atlantic Pollock,present,
+offshore-10,Offshore bait-fishing spot 14,bait,42.965658,-70.619363,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-10,Offshore bait-fishing spot 14,bait,42.965658,-70.619363,guide-map,atlantic-pollock,Atlantic Pollock,present,
+offshore-11,Offshore bait-fishing spot 16,bait,42.962405,-70.601962,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-11,Offshore bait-fishing spot 16,bait,42.962405,-70.601962,guide-map,atlantic-pollock,Atlantic Pollock,present,
+offshore-11,Offshore bait-fishing spot 16,bait,42.962405,-70.601962,guide-map,rockfish,Rockfish,present,
+offshore-12,Offshore bait-fishing spot 17,bait,42.962237,-70.604921,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-12,Offshore bait-fishing spot 17,bait,42.962237,-70.604921,guide-map,atlantic-pollock,Atlantic Pollock,present,
+offshore-13,Offshore bait-fishing spot 1,bait,42.996477,-70.616173,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-14,Offshore bait-fishing spot 2,bait,42.993121,-70.609407,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-15,Offshore bait-fishing spot 3,bait,42.978127,-70.612035,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-16,Offshore bait-fishing spot 7,bait,42.971356,-70.624583,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-17,Offshore bait-fishing spot 13,bait,42.969556,-70.612587,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-18,Offshore bait-fishing spot 8,bait,42.970656,-70.615065,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+offshore-19,Offshore bait-fishing spot 12,bait,42.969664,-70.613159,guide-map,atlantic-mackerel,Atlantic Mackerel,present,
+bait-sculpin,Sculpin bait-fishing spot,bait,42.972967,-70.601633,gps,sculpin,Sculpin,present,

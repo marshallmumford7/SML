@@ -1,20 +1,39 @@
 // Sightings map on real map tiles. Video sites use surveyed GPS coordinates; other markers
 // were positioned by georeferencing the guide's maps (see README).
 (function () {
-  const data = window.FISH_MAP;
   const box = document.getElementById('bigmap');
-  if (!window.L || !data) {
-    const missing = [!window.L && 'vendor/leaflet/leaflet.js', !data && 'map-data.js'].filter(Boolean).join(' and ');
+  const ref = window.FISH_REF;
+  if (!window.L || !ref) {
+    const missing = [!window.L && 'vendor/leaflet/leaflet.js', !ref && 'map-data.js'].filter(Boolean).join(' and ');
     box.innerHTML = '<p class="map-error">The map could not load because <code>' + missing +
       '</code> is missing from the site. Check that the file was uploaded to the repository, then reload this page.</p>';
     return;
   }
-  const METHOD = { dot: 'Underwater video (RUVS)', dia: 'Trap or seine', rod: 'Rod and reel', bait: 'Bait fishing' };
-  const DETAIL = {
-    'dot-hi': 'higher abundance', 'dot-lo': 'seen infrequently',
-    'dia-hi': 'caught', 'dia-lo': 'fewer caught; for seine species, also a tern foraging spot',
-    rod: 'caught on rod and reel', bait: 'caught while bait fishing',
+  fetch('points.json', { cache: 'no-cache' })
+    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(start)
+    .catch(() => {
+      box.innerHTML = '<p class="map-error">The sightings could not load from <code>points.json</code>. The map works when the site is served from GitHub Pages or a local web server (for example <code>python3 -m http.server</code>), not when the file is opened directly.</p>';
+    });
+
+function start(pdata) {
+  const PIN = { video: 'dot', trap: 'dia', rod: 'rod', bait: 'bait' };
+  const LEVEL = {
+    video: { high: 'higher abundance', low: 'seen infrequently', present: 'seen' },
+    trap: { high: 'caught', low: 'fewer caught; for seine species, also a tern foraging spot', present: 'caught' },
+    rod: { high: 'caught on rod and reel', low: 'caught on rod and reel', present: 'caught on rod and reel' },
+    bait: { high: 'caught while bait fishing', low: 'caught while bait fishing', present: 'caught while bait fishing' },
   };
+  const pages = new Set(ref.pages || []);
+  // adapt points.json to the structure used below
+  const data = {
+    species: pdata.species, views: ref.views, survey: ref.survey, pools: ref.pools, alias: ref.alias || {},
+    sites: pdata.points.map((p) => ({
+      id: p.id, name: p.name, method: p.type, lat: p.lat, lng: p.lng, exact: p.source === 'gps', note: p.note,
+      records: Object.entries(p.species || {}).map(([sp, lv]) => ({ species: sp, level: lv, kind: lv === 'high' ? 'x-hi' : lv === 'low' ? 'x-lo' : 'x' })),
+    })),
+  };
+  const METHOD = pdata.types || { video: 'Underwater video (RUVS)', trap: 'Trap or seine', rod: 'Rod and reel', bait: 'Bait fishing' };
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = (v) => v.toFixed(5);
 
@@ -27,7 +46,7 @@
   const state = {
     view: viewIds.includes(params.get('area')) ? params.get('area') : 'appledore',
     species: new Set(params.get('species') ? params.get('species').split(',').filter((s) => data.species[s]) : allSpecies),
-    methods: new Set(['dot', 'dia', 'rod', 'bait']),
+    methods: new Set(['video', 'trap', 'rod', 'bait']),
     survey: true, pools: false,
     site: siteParam,
   };
@@ -94,12 +113,14 @@
   }
   function popupHtml(site, recs) {
     const bySp = {};
-    recs.forEach((r) => { (bySp[r.species] = bySp[r.species] || new Set()).add(DETAIL[r.kind]); });
+    recs.forEach((r) => { (bySp[r.species] = bySp[r.species] || new Set()).add(LEVEL[site.method][r.level]); });
     let h = `<p class="pop-title">${esc(site.name)}</p><p class="pop-sub">${METHOD[site.method]}</p><ul>`;
     Object.keys(bySp).sort((a, b) => data.species[a].localeCompare(data.species[b])).forEach((sp) => {
-      h += `<li><a href="${sp}.html">${esc(data.species[sp])}</a> <span>${esc([...bySp[sp]].join(', '))}</span></li>`;
+      const nm = esc(data.species[sp] || sp);
+      h += `<li>${pages.has(sp) ? `<a href="${sp}.html">${nm}</a>` : nm} <span>${esc([...bySp[sp]].join(', '))}</span></li>`;
     });
     h += '</ul>';
+    if (site.note) h += `<p class="pop-sub">${esc(site.note)}</p>`;
     const hidden = new Set(site.records.filter((r) => !state.species.has(r.species)).map((r) => r.species)).size;
     if (hidden) h += `<p class="pop-sub">${hidden} more species here hidden by your filters.</p>`;
     return h + where(site);
@@ -117,7 +138,7 @@
       const tone = recs.some((r) => r.kind.endsWith('-hi')) ? 'hi' : (recs.some((r) => r.kind.endsWith('-lo')) ? 'lo' : '');
       const size = site.method === 'rod' ? 38 : 22;
       const label = `${site.name}: ${[...new Set(recs.map((r) => data.species[r.species]))].join(', ')}`;
-      const m = L.marker([site.lat, site.lng], { icon: icon(`bm-pin ${site.method} ${tone}`, size, n > 1 ? n : ''), title: label, alt: label, riseOnHover: true })
+      const m = L.marker([site.lat, site.lng], { icon: icon(`bm-pin ${PIN[site.method]} ${tone}`, size, n > 1 ? n : ''), title: label, alt: label, riseOnHover: true })
         .bindPopup(popupHtml(site, recs), { maxWidth: 290, className: 'bm-popup' });
       m.on('popupopen', () => { state.site = site.id; writeHash(); });
       m.on('popupclose', () => { if (state.site === site.id) { state.site = null; writeHash(); } });
@@ -154,4 +175,5 @@
     markers[startSite].openPopup();
   }
   window.addEventListener('hashchange', () => location.reload());
+}
 })();
