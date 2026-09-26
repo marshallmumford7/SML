@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sightings map | Fintastic Fish</title>
+<meta name="description" content="Every sighting in the guide on one interactive map of the Isles of Shoals and New Castle.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐟</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html">Fintastic Fish</a>
+  <nav aria-label="Site">
+    <a href="index.html#species">Species</a>
+    <a href="map.html">Map</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main id="main" class="mappage">
+<header class="species-head compact"><div class="inner">
+  <h1>Sightings map</h1>
+  <p class="dek">Every marker from the guide, combined. Filter by species or method, then select a site to see what was found there.</p>
+</div></header>
+<div class="mapwrap">
+  <aside class="controls" aria-label="Map filters">
+    <fieldset class="areas">
+      <legend>Area</legend>
+      <div class="area-btns" id="areaBtns"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Method</legend>
+      <label><input type="checkbox" name="method" value="dot" checked><span class="mk dot hi"></span>Underwater video</label>
+      <label><input type="checkbox" name="method" value="dia" checked><span class="mk dia hi"></span>Trap or seine</label>
+      <label><input type="checkbox" name="method" value="rod" checked><img class="mk rod" src="images/rod-icon.png" alt="" width="28" height="21">Rod and reel</label>
+      <label><input type="checkbox" name="method" value="bait" checked><span class="mk red"></span>Bait fishing</label>
+    </fieldset>
+    <fieldset>
+      <legend>Species</legend>
+      <div class="sp-actions"><button type="button" id="spAll">Select all</button><button type="button" id="spNone">Clear</button></div>
+      <div id="spList"></div>
+    </fieldset>
+    <p class="note">Purple markers mean higher abundance, blue means seen infrequently. Marker positions follow the original guide&rsquo;s maps, so treat them as approximate.</p>
+  </aside>
+  <section class="mapcol" aria-label="Map">
+    <p class="status" id="status" aria-live="polite"></p>
+    <div id="bigmap"></div>
+  </section>
+</div>
+</main>
+<footer class="site-foot">
+  <p>Fintastic Fish and Where to Find Them &mdash; Marshall Mumford and Mike Sigler, Shoals Marine Laboratory, 2025.</p>
+  <p>Base maps &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>; offshore imagery &copy; Google.</p>
+  <p>Want to add a sighting? The <a href="https://docs.google.com/presentation/d/1Qst9xODdcNLT6IR3jGzTNkRIb7ckCJF-JLhumPuC_6Q/edit?usp=sharing">editable Google Slides version</a> is open for contributions.</p>
+</footer>
+<script src="map-data.js"></script>
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="bigmap.js"></script>
+</body>
+</html>

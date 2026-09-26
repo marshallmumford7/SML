@@ -206,3 +206,98 @@ dialog.lightbox button {
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 .gallery img { max-height: 20rem; width: auto; max-width: 100%; }
+
+/* ---------- interactive species maps ---------- */
+.imap { position: relative; }
+.imap > img { border-radius: 6px; border: 1px solid var(--line); width: 100%; }
+.pin {
+  position: absolute; transform: translate(-50%, -50%);
+  width: clamp(14px, 2.9%, 22px); aspect-ratio: 1; padding: 0; margin: 0;
+  border: 1.5px solid #3d3d3d; cursor: pointer; background: var(--blue);
+}
+.pin::after { content: ""; position: absolute; inset: -9px; }       /* larger touch target */
+.pin.dot { border-radius: 50%; }
+.pin.dia { transform: translate(-50%, -50%) rotate(45deg); width: clamp(12px, 2.4%, 18px); }
+.pin.hi { background: var(--purple); }
+.pin.lo { background: var(--blue); }
+.pin.rod {
+  width: clamp(22px, 4.8%, 36px); aspect-ratio: 460 / 345; border: 0; border-radius: 3px;
+  background: url("images/rod-icon.png") center / contain no-repeat;
+}
+.pin.bait { border: 2px solid transparent; border-radius: 50%; background: transparent; width: clamp(16px, 2.6%, 22px); }
+.pin:hover, .pin[aria-expanded="true"] { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--deep); z-index: 2; }
+.pin.bait:hover, .pin.bait[aria-expanded="true"] { border-color: #fff; box-shadow: 0 0 0 2px var(--deep); }
+.pin:focus-visible { outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 6px var(--deep); z-index: 2; }
+
+.pop, .bm-popup .leaflet-popup-content {
+  font: 400 .95rem/1.45 var(--body); color: var(--ink);
+}
+.pop {
+  position: absolute; z-index: 5; width: min(18rem, calc(100% - 12px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  padding: .75rem .9rem .8rem; box-shadow: 0 10px 30px -12px rgba(30, 61, 71, .55);
+}
+.pop-x { position: absolute; top: .25rem; right: .35rem; border: 0; background: none; font-size: 1.4rem; line-height: 1; color: var(--muted); cursor: pointer; padding: .2rem .4rem; }
+.pop-title { font: 700 1.15rem/1.1 var(--display); color: var(--deep); margin: 0 1.5rem .35rem 0; }
+.pop-main { margin: 0 0 .5rem; }
+.pop-sub { margin: .5rem 0 .2rem; color: var(--muted); font-size: .88rem; }
+.pop ul, .bm-popup ul { list-style: none; margin: 0; padding: 0; }
+.pop li, .bm-popup li { padding: .15rem 0; }
+.pop li span, .bm-popup li span { color: var(--muted); font-size: .88rem; }
+.pop-link { display: inline-block; margin-top: .55rem; font-size: .9rem; }
+.map-tools { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem 1rem; margin: .5rem 0 0; font-size: .92rem; color: var(--muted); }
+.maplink { font-weight: 600; }
+
+/* ---------- full sightings map page ---------- */
+.species-head.compact .inner { padding-bottom: 1.5rem; }
+.species-head.compact h1 { font-size: clamp(2.6rem, 7vw, 4.5rem); }
+.mapwrap {
+  max-width: 90rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem;
+  display: grid; grid-template-columns: 17rem minmax(0, 1fr); gap: 1.5rem; align-items: start;
+}
+.controls fieldset { border: 0; margin: 0 0 1.25rem; padding: 0; }
+.controls legend { font: 700 1.3rem/1 var(--display); color: var(--deep); margin-bottom: .5rem; padding: 0; }
+.controls label { display: flex; align-items: center; gap: .5rem; padding: .22rem 0; cursor: pointer; font-size: .98rem; }
+.controls label small { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+.controls input { accent-color: var(--deep); width: 1.05rem; height: 1.05rem; margin: 0; }
+.area-btns { display: grid; gap: .4rem; }
+.area-btns button, .sp-actions button {
+  font: 600 1.05rem/1.2 var(--display); text-align: left; cursor: pointer;
+  border: 1px solid var(--line); background: var(--panel); color: var(--deep); border-radius: 5px; padding: .45rem .7rem;
+  display: flex; justify-content: space-between; gap: .5rem;
+}
+.area-btns button small { font: 400 .85rem var(--body); color: var(--muted); }
+.area-btns button[aria-pressed="true"] { background: var(--deep); color: #fff; border-color: var(--deep); }
+.area-btns button[aria-pressed="true"] small { color: #cfe0e3; }
+.sp-actions { display: flex; gap: .4rem; margin-bottom: .4rem; }
+.sp-actions button { padding: .25rem .6rem; font-size: .95rem; }
+.controls .note { font-size: .88rem; color: var(--muted); margin: 0; }
+.status { margin: 0 0 .5rem; font-size: .95rem; color: var(--muted); min-height: 1.4em; }
+#bigmap { height: min(78vh, 760px); min-height: 420px; border: 1px solid var(--line); border-radius: 6px; background: #b6d6df; }
+#bigmap:focus-visible { outline: 3px solid var(--deep); }
+.bm-icon { background: none; border: 0; }
+.bm-pin { position: absolute; inset: 0; margin: auto; display: block; border: 1.5px solid #3d3d3d; background: var(--blue); }
+.bm-pin.dot { border-radius: 50%; }
+.bm-pin.dia { inset: 3px; transform: rotate(45deg); }
+.bm-pin.hi { background: var(--purple); }
+.bm-pin.rod { border: 0; background: url("images/rod-icon.png") center / contain no-repeat; }
+.bm-pin.bait { background: #e0261b; border-color: #fff; border-radius: 50%; inset: 3px; }
+.bm-count {
+  position: absolute; right: -9px; top: -9px; min-width: 17px; height: 17px; padding: 0 3px;
+  border-radius: 9px; background: var(--deep); color: #fff; font: 700 11px/17px var(--display); text-align: center;
+}
+.leaflet-marker-icon:focus-visible .bm-pin { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--deep); }
+.bm-popup .leaflet-popup-content { margin: .8rem 1rem; }
+.bm-popup .leaflet-popup-content-wrapper { border-radius: 6px; }
+.leaflet-container a.leaflet-popup-close-button { font-size: 20px; }
+@media (max-width: 860px) {
+  .mapwrap { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .controls { display: contents; }
+  .controls .areas { order: 1; margin: 0; }
+  .mapcol { order: 2; }
+  .controls fieldset:not(.areas), .controls .note { order: 3; }
+  .area-btns { grid-template-columns: 1fr 1fr; }
+  #bigmap { height: 62vh; }
+}
+.bm-popup .leaflet-popup-content p { margin: 0 0 .4rem; }
+.bm-popup .pop-title { margin-right: 1rem; }
